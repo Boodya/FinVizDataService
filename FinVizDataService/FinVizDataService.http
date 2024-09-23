@@ -1,0 +1,6 @@
+@FinVizDataService_HostAddress = http://localhost:5271
+
+GET {{FinVizDataService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
