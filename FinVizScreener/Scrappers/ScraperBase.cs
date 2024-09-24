@@ -1,15 +1,16 @@
-﻿using FinVizScreener.Helpers;
+﻿using FinVizDataService.Models;
+using FinVizScreener.Helpers;
+using FinVizScreener.Scrappers;
+using HtmlAgilityPack;
 
 namespace FinVizScreener.Scrapers
 {
-    public abstract class ScraperBase
+    public abstract class ScraperBase : IScrapper
     {
-        protected async Task<string> GetPageContentAsync(string url)
-        {
-            var response = await HttpHelper.GetAsync(url);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsStringAsync();
-        }
+        protected async Task<HtmlDocument> GetPageContentAsync(string url) =>
+            new HtmlWeb().Load(url);
+
+        public abstract IEnumerable<FinVizDataItem> ScrapeDataTable(string url);
 
         protected decimal? ParseDecimal(string value)
         {
