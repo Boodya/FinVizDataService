@@ -1,5 +1,4 @@
 ﻿using FinVizDataService.Models;
-using FinVizScreener.Helpers;
 using FinVizScreener.Scrappers;
 using HtmlAgilityPack;
 
@@ -11,7 +10,7 @@ namespace FinVizScreener.Scrapers
             new HtmlWeb().Load(url);
 
         public abstract IEnumerable<FinVizDataItem> ScrapeDataTable(string url);
-
+        public abstract IAsyncEnumerable<FinVizDataItem> ScrapeDataTableAsync(string url);
         protected decimal? ParseDecimal(string value)
         {
             if (decimal.TryParse(value, out decimal result))

@@ -1,6 +1,7 @@
+using FinVizDataService.Models;
 using FinVizScreener.Scrappers;
 
-namespace FinVizScreenerTests
+namespace FinVizScreener.Scrappers
 {
     public class ScrappersTests
     {
@@ -10,21 +11,31 @@ namespace FinVizScreenerTests
             
         }
         [Fact]
-        public void OnePageScrapeTest()
+        public async void OnePageScrapeTestAsync()
         {
-            var scrapper = new FullScrapper();
-            var result = scrapper.ScrapeDataTable(_scrapeUrl);
-            Assert.NotNull(result);
-            Assert.True(result.Count() == 20);
+            var scrapper = new OnePageScrapper();
+            var result = scrapper.ScrapeDataTableAsync(_scrapeUrl);
+            var items = new List<FinVizDataItem>();
+            await foreach (var item in result)
+            {
+                items.Add(item);
+            }
+            Assert.NotNull(items);
+            Assert.Equal(20, items.Count);
         }
 
         [Fact]
-        public void AllDataScrapperTest()
+        public async void AllDataScrapperTestAsync()
         {
             var scrapper = new PaginatedFullScrapper();
-            var result = scrapper.ScrapeDataTable(_scrapeUrl);
-            Assert.NotNull(result);
-            Assert.True(result.Count() > 8000);
+            var result = scrapper.ScrapeDataTableAsync(_scrapeUrl);
+            var items = new List<FinVizDataItem>();
+            await foreach (var item in result)
+            {
+                items.Add(item);
+            }
+            Assert.NotNull(items);
+            Assert.True(items.Count > 8000);
         }
     }
 }

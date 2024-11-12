@@ -3,7 +3,7 @@ using FinVizScreener.Scrapers;
 
 namespace FinVizScreener.Scrappers
 {
-    public class FullScrapper : ScraperBase
+    public class OnePageScrapper : ScraperBase
     {
         public override IEnumerable<FinVizDataItem> ScrapeDataTable(string url)
         {
@@ -47,6 +47,15 @@ namespace FinVizScreener.Scrappers
             }
 
             return dataItems;
+        }
+
+        public override async IAsyncEnumerable<FinVizDataItem> ScrapeDataTableAsync(string url)
+        {
+            var dataItems = await Task.Run(() => ScrapeDataTable(url));
+            foreach (var item in dataItems)
+            {
+                yield return item;
+            }
         }
     }
 }
