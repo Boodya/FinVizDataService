@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinVizDataService", "FinVizDataService\FinVizDataService.csproj", "{D287D5BE-552B-4DF4-9449-5A9396A617C5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockMarketAnalyticsService", "FinVizDataService\StockMarketAnalyticsService.csproj", "{D287D5BE-552B-4DF4-9449-5A9396A617C5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinVizScreener", "FinVizScreener\FinVizScreener.csproj", "{718882AE-24F9-46BA-9F75-3071D4000A77}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinVizScreener", "FinVizScreener\FinVizScreener.csproj", "{718882AE-24F9-46BA-9F75-3071D4000A77}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinVizScreenerTests", "FinVizScreenerTests\FinVizScreenerTests.csproj", "{3F0038B2-C425-4041-809D-E6B55EB6A0FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinVizScreenerTests", "FinVizScreenerTests\FinVizScreenerTests.csproj", "{3F0038B2-C425-4041-809D-E6B55EB6A0FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

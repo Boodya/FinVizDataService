@@ -13,7 +13,8 @@ namespace FinVizScreenerTests
         public async void OnePageScrapeTestAsync()
         {
             var scrapper = new OnePageScrapper();
-            var result = scrapper.ScrapeDataTableAsync(TestsConfig.ScrappingUrl);
+            var result = scrapper.ScrapeDataTableAsync(
+                TestsConfig.ScrappingUrl);
             var items = new List<FinVizDataItem>();
             await foreach (var item in result)
             {
@@ -27,7 +28,8 @@ namespace FinVizScreenerTests
         public async void AllDataScrapperTestAsync()
         {
             var scrapper = new PaginatedFullScrapper();
-            var result = scrapper.ScrapeDataTableAsync(TestsConfig.ScrappingUrl);
+            var result = scrapper.ScrapeDataTableAsync(
+                TestsConfig.ScrappingUrl);
             var items = new List<FinVizDataItem>();
             await foreach (var item in result)
             {

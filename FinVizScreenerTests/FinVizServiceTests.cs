@@ -11,7 +11,7 @@ namespace FinVizScreenerTests
             var service = new FinVizScrapperService(new FinVizScreener.Models.FinVizDataServiceConfigModel()
             {
                 EndpointUrl = TestsConfig.ScrappingUrl,
-                DatabaseConnectionString = "litedb-test.db",
+                DatabaseConnectionString = TestsConfig.LiteDBConnectionString,
                 DatabaseType = "LiteDB",
                 ExecutionTime = DateTime.Now.AddSeconds(1).TimeOfDay,
             });

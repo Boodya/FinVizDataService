@@ -14,7 +14,8 @@ namespace FinVizScreenerTests
         [Fact]
         public void LocalLiteDBSaveLoadTest()
         {
-            var dbAdapter = DBAdapterFactory.Resolve("LiteDB", "litedb-test.db");
+            var dbAdapter = DBAdapterFactory.Resolve("LiteDB",
+                TestsConfig.LiteDBConnectionString);
             var scrapper = new OnePageScrapper();
             var data = scrapper.ScrapeDataTable(TestsConfig.ScrappingUrl);
             var originalItem = data.FirstOrDefault();
@@ -36,7 +37,8 @@ namespace FinVizScreenerTests
         [Fact]
         public void LocalLiteDBLoadChangeSaveTest()
         {
-            var dbAdapter = DBAdapterFactory.Resolve("LiteDB", "litedb-test.db");
+            var dbAdapter = DBAdapterFactory.Resolve("LiteDB",
+                TestsConfig.LiteDBConnectionString);
             var loadedData = dbAdapter.GetLatestData();
             var itemToOperate = loadedData.FirstOrDefault();
             Assert.NotNull(itemToOperate);
