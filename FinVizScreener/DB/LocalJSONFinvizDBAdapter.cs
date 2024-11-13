@@ -15,33 +15,29 @@ namespace FinVizScreener.DB
             }
         }
 
-        public FinVizDataPack GetLatestData()
+        public IEnumerable<FinVizDataItem> GetLatestData()
         {
             var data = LoadDataFromDB(
                 GetLastModifiedFileName(_dbFolderPath));
-            if (data != null)
-                return data;
-            
-            data = new FinVizDataPack();
-            data.FetchDate = DateTime.MinValue;
-            data.Items = new List<FinVizDataItem>();
-            return data;
+            return data ?? new List<FinVizDataItem>();
         }
 
-        public void SaveData(FinVizDataPack data)
+        public void SaveData(IEnumerable<FinVizDataItem> data)
         {
-            var fPath = Path.Combine(_dbFolderPath, 
-                $"{data.FetchDate:dd-MM-yyyy-hh-mm-ss}.json");
+            if(data == null || data.Count() == 0) 
+                return;
+            var fPath = Path.Combine(_dbFolderPath,
+                $"{data.First().Date:dd-MM-yyyy-hh-mm-ss}.json");
             var jsonData = JsonConvert.SerializeObject(data, Formatting.Indented);
             File.WriteAllText(fPath, jsonData);
         }
 
-        private FinVizDataPack? LoadDataFromDB(string fileName)
+        private IEnumerable<FinVizDataItem>? LoadDataFromDB(string fileName)
         {
             if (!string.IsNullOrEmpty(fileName) && File.Exists(fileName))
             {
                 var jsonData = File.ReadAllText(fileName);
-                var objData = JsonConvert.DeserializeObject<FinVizDataPack>(jsonData);
+                var objData = JsonConvert.DeserializeObject<List<FinVizDataItem>>(jsonData);
                 if (objData != null)
                     return objData;
             }

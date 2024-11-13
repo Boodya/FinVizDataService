@@ -12,9 +12,9 @@ namespace FinVizDataService.Controllers
         }
 
         [HttpGet(Name = "GetFullData")]
-        public FinVizDataPack Get()
+        public List<FinVizDataItem> Get()
         {
-            return new FinVizDataPack();
+            return new List<FinVizDataItem>();
         }
     }
 }

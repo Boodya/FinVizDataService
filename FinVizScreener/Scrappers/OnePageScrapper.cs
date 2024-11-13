@@ -37,7 +37,7 @@ namespace FinVizScreener.Scrappers
 
                     var dataItem = new FinVizDataItem
                     {
-                        Id = int.Parse(cells[0].InnerText.Trim()),
+                        Date = DateTime.Now.ToUniversalTime(),
                         Ticker = cells[1].InnerText.Trim(),
                         ItemProperties = itemProperties
                     };

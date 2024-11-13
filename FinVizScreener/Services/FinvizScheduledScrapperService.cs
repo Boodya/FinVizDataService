@@ -7,26 +7,33 @@ namespace FinVizScreener.Services
 {
     public class FinvizScheduledScrapperService
     {
-        public FinVizDataPack Data { get; private set; }
+        public List<FinVizDataItem> Data { get; private set; }
         private IScrapper _scrapper;
         private FinVizDataServiceConfigModel _cfg;
         private CancellationToken _scrapperCancelToken;
-        private Dictionary<Guid,Action<FinVizDataPack>> _subscribers;
-        private readonly object _subscribersLock = new object();
+        private Dictionary<Guid,Action<FinVizDataItem>> _subscribers;
+        private readonly object _subscriptionLock = new object();
+        private TimeSpan _broadcastingDelay;
+        private DateTime _lastBroadCastDate;
+        private List<FinVizDataItem> _dataSubscribersQueue;
 
         public FinvizScheduledScrapperService(FinVizDataServiceConfigModel cfg)
         {
             _subscribers = new();
             _scrapper = new PaginatedFullScrapper();
             _cfg = cfg;
-            Data = _cfg.Db.GetLatestData();
+            Data = _cfg.Db
+                .GetLatestData()
+                .ToList();
             _scrapperCancelToken = new CancellationToken();
+            _dataSubscribersQueue = new();
+            _broadcastingDelay = TimeSpan.FromMilliseconds(50);
             StartPeriodicScrapingAsync(_scrapperCancelToken);
         }
 
-        public Guid SubscribeOnDataUpdated(Action<FinVizDataPack> onDataUpdated)
+        public Guid Subscribe(Action<FinVizDataItem> onDataUpdated)
         {
-            lock (_subscribersLock)
+            lock (_subscriptionLock)
             {
                 var id = Guid.NewGuid();
                 _subscribers.Add(id, onDataUpdated);
@@ -36,7 +43,7 @@ namespace FinVizScreener.Services
 
         public void Unsibscribe(Guid subscriptionId)
         {
-            lock (_subscribersLock)
+            lock (_subscriptionLock)
             {
                 if (_subscribers.ContainsKey(subscriptionId))
                     _subscribers.Remove(subscriptionId);
@@ -66,21 +73,17 @@ namespace FinVizScreener.Services
         {
             var dataItems = new List<FinVizDataItem>();
             await foreach (var item in _scrapper.ScrapeDataTableAsync(_cfg.EndpointUrl))
-                dataItems.Add(item);
-            var newData = new FinVizDataPack
             {
-                FetchDate = DateTime.Now,
-                Items = dataItems
-            };
-            _cfg.Db.SaveData(newData);
-            Data = newData;
-            HandleSubscribers(newData);
-            
+                dataItems.Add(item);
+                HandleSubscribers(item);
+            }
+            _cfg.Db.SaveData(dataItems);
+            Data = dataItems;
         }
 
-        private void HandleSubscribers(FinVizDataPack data)
+        private void HandleSubscribers(FinVizDataItem data)
         {
-            lock (_subscribersLock)
+            lock (_subscriptionLock)
             {
                 foreach (var subscriber in _subscribers.Values)
                     Task.Run(() => subscriber(data));
