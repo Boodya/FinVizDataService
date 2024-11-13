@@ -2,7 +2,7 @@ using FinVizDataService.Models;
 using FinVizScreener.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FinVizDataService.Controllers
+namespace StockMarketAnalyticsService.Controllers
 {
     [ApiController]
     [Route("[controller]")]

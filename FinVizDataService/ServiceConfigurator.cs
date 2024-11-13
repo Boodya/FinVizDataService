@@ -3,7 +3,7 @@ using FinVizScreener.Models;
 using FinVizScreener.Services;
 using Serilog;
 
-namespace FinVizDataService
+namespace StockMarketAnalyticsService
 {
     internal static class ServiceConfigurator
     {

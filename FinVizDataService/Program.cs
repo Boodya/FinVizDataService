@@ -1,5 +1,5 @@
-using FinVizDataService;
 using Serilog;
+using StockMarketAnalyticsService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,11 +14,8 @@ app.UseSerilogRequestLogging();
 ServiceConfigurator.PostConfigure(app.Services);
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseAuthorization();
 
