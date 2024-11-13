@@ -13,21 +13,18 @@ namespace FinVizScreener.Services
         private CancellationToken _scrapperCancelToken;
         private Dictionary<Guid,Action<FinVizDataItem>> _subscribers;
         private readonly object _subscriptionLock = new object();
-        private TimeSpan _broadcastingDelay;
-        private DateTime _lastBroadCastDate;
-        private List<FinVizDataItem> _dataSubscribersQueue;
+        private IFinvizDBAdapter _db;
 
         public FinvizScheduledScrapperService(FinVizDataServiceConfigModel cfg)
         {
             _subscribers = new();
             _scrapper = new PaginatedFullScrapper();
             _cfg = cfg;
-            Data = _cfg.Db
+            _db = DBAdapterFactory.Resolve(_cfg.DatabaseType, _cfg.DatabaseConnectionString);
+            Data = _db
                 .GetLatestData()
                 .ToList();
             _scrapperCancelToken = new CancellationToken();
-            _dataSubscribersQueue = new();
-            _broadcastingDelay = TimeSpan.FromMilliseconds(50);
             StartPeriodicScrapingAsync(_scrapperCancelToken);
         }
 
@@ -75,9 +72,9 @@ namespace FinVizScreener.Services
             await foreach (var item in _scrapper.ScrapeDataTableAsync(_cfg.EndpointUrl))
             {
                 dataItems.Add(item);
-                HandleSubscribers(item);
+                //HandleSubscribers(item);
             }
-            _cfg.Db.SaveData(dataItems);
+            _db.SaveData(dataItems);
             Data = dataItems;
         }
 

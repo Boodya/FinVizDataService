@@ -1,4 +1,5 @@
 ﻿using FinVizScreener.DB;
+using System.Text.Json.Serialization;
 
 namespace FinVizScreener.Models
 {
@@ -7,6 +8,7 @@ namespace FinVizScreener.Models
         public string EndpointUrl { get; set; }
         public TimeSpan DataFetchPeriod { get; set; }
         public TimeSpan StartTime { get; set; }
-        public IFinvizDBAdapter Db {  get; set; }
+        public string DatabaseType {  get; set; }
+        public string DatabaseConnectionString { get; set; }
     }
 }

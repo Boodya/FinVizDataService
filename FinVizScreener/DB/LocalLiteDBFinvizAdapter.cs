@@ -56,11 +56,12 @@ namespace FinVizScreener.DB
                 int newVersion = currentMaxVersion + 1;
                 foreach (var item in validatedData)
                 {
-                    item.Id = newId++;
+                    item.Id = newId;
                     item.Version = newVersion;
+                    newId++;
                 }
 
-                collection.InsertBulk(data);
+                collection.InsertBulk(validatedData);
             }
         }
 
