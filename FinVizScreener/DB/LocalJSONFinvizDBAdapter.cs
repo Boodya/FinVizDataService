@@ -22,14 +22,15 @@ namespace FinVizScreener.DB
             return data ?? new List<FinVizDataItem>();
         }
 
-        public void SaveData(IEnumerable<FinVizDataItem> data)
+        public int SaveData(IEnumerable<FinVizDataItem> data)
         {
             if(data == null || data.Count() == 0) 
-                return;
+                return 0;
             var fPath = Path.Combine(_dbFolderPath,
                 $"{data.First().Date:dd-MM-yyyy-hh-mm-ss}.json");
             var jsonData = JsonConvert.SerializeObject(data, Formatting.Indented);
             File.WriteAllText(fPath, jsonData);
+            return data.Count();
         }
 
         private IEnumerable<FinVizDataItem>? LoadDataFromDB(string fileName)

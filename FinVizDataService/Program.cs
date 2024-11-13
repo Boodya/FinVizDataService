@@ -1,4 +1,5 @@
 using FinVizDataService;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 var app = builder.Build();
+app.UseSerilogRequestLogging();
+
 ServiceConfigurator.PostConfigure(app.Services);
 
 // Configure the HTTP request pipeline.

@@ -1,5 +1,4 @@
 ﻿using FinVizDataService.Models;
-using FinVizScreener.DB;
 using FinVizScreener.Services;
 
 namespace FinVizScreenerTests
@@ -9,13 +8,12 @@ namespace FinVizScreenerTests
         [Fact]
         public async void OnServiceDataDownloadedTest()
         {
-            var service = new FinvizScheduledScrapperService(new FinVizScreener.Models.FinVizDataServiceConfigModel()
+            var service = new FinVizScrapperService(new FinVizScreener.Models.FinVizDataServiceConfigModel()
             {
                 EndpointUrl = TestsConfig.ScrappingUrl,
                 DatabaseConnectionString = "litedb-test.db",
                 DatabaseType = "LiteDB",
-                StartTime = TimeSpan.FromHours(08),
-                DataFetchPeriod = TimeSpan.FromDays(1),
+                ExecutionTime = DateTime.Now.AddSeconds(1).TimeOfDay,
             });
             List<FinVizDataItem> fetchedData = new();
             service.Subscribe(fetchedData.Add);

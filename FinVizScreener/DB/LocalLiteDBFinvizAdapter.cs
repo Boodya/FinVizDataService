@@ -32,11 +32,11 @@ namespace FinVizScreener.DB
             }
         }
 
-        public void SaveData(IEnumerable<FinVizDataItem> data)
+        public int SaveData(IEnumerable<FinVizDataItem> data)
         {
             var validatedData = ValidatePropsUpdated(data);
             if (validatedData.Count == 0)
-                return;
+                return 0;
             using (var db = new LiteDatabase(_dbPath))
             {
                 var collection = db.GetCollection<FinVizDataItem>(CollectionName);
@@ -63,6 +63,7 @@ namespace FinVizScreener.DB
 
                 collection.InsertBulk(validatedData);
             }
+            return validatedData.Count;
         }
 
         private List<FinVizDataItem> ValidatePropsUpdated(IEnumerable<FinVizDataItem> data)
