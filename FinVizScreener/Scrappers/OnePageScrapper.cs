@@ -39,7 +39,7 @@ namespace FinVizScreener.Scrappers
                     {
                         Date = DateTime.Now.ToUniversalTime(),
                         Ticker = cells[1].InnerText.Trim(),
-                        ItemProperties = itemProperties
+                        ItemProperties = base.ValidateProps(itemProperties)
                     };
 
                     dataItems.Add(dataItem);

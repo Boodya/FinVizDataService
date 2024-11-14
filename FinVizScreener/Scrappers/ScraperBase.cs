@@ -1,4 +1,5 @@
 ﻿using FinVizDataService.Models;
+using FinVizScreener.Helpers;
 using FinVizScreener.Scrappers;
 using HtmlAgilityPack;
 
@@ -27,6 +28,18 @@ namespace FinVizScreener.Scrapers
                 return result;
             }
             return 0;
+        }
+
+        protected Dictionary<string, string> ValidateProps(Dictionary<string, string>? props)
+        {
+            if (props == null)
+                return new(); 
+            foreach (var key in props.Keys)
+            {
+                props[key] = PropsValidator
+                    .ValidatePropValue(props[key]);
+            }
+            return props;
         }
     }
 }

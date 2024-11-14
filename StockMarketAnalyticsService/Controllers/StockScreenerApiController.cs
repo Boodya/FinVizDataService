@@ -1,4 +1,4 @@
-using FinVizDataService.Models;
+﻿using FinVizDataService.Models;
 using FinVizScreener.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,13 +16,14 @@ namespace StockMarketAnalyticsService.Controllers
         }
 
         [Route("GetTickers")]
-        [HttpGet]
+        [HttpPost]
         public ActionResult<List<string>> GetTickerList(string searchTerm = "")
         {
             var tickers = string.IsNullOrWhiteSpace(searchTerm)
                 ? _dataService.Data.Select(item => item.Ticker)
                 : _dataService.Data
-                    .Where(item => item.Ticker.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                    .Where(item => item.Ticker
+                        .Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
                     .Select(item => item.Ticker);
 
             var tickerList = tickers
@@ -33,59 +34,34 @@ namespace StockMarketAnalyticsService.Controllers
             return Ok(tickerList);
         }
 
-        [Route("FindByExactTicker")]
-        [HttpGet]
-        public ActionResult<FinVizDataItem> GetInstrumentData(string ticker)
-        {
-            if (string.IsNullOrWhiteSpace(ticker))
-            {
-                return BadRequest("Ticker cannot be empty.");
-            }
-
-            var result = _dataService.Data
-                .FirstOrDefault(item => string.Equals(item.Ticker, ticker, StringComparison.OrdinalIgnoreCase));
-
-            if (result == null)
-            {
-                return NotFound($"No data found for ticker '{ticker}'.");
-            }
-
-            return Ok(result);
-        }
-
         [Route("SearchByTicker")]
-        [HttpGet]
-        public ActionResult<List<FinVizDataItem>> SearchByTicker(string searchTerm)
+        [HttpPost]
+        public ActionResult<List<FinVizDataItem>> SearchByTicker(string searchTerm,
+            List<string> propsFilter = null)
         {
             if (string.IsNullOrWhiteSpace(searchTerm))
-            {
                 return BadRequest("Search term cannot be empty.");
-            }
-
-            var result = _dataService.Data
-                .Where(item => item.Ticker.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+            return Ok(GetFilteredData(propsFilter)
+                .Where(item => item.Ticker
+                    .Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
                 .OrderBy(item => item.Ticker)
-                .ToList();
-
-            return Ok(result);
+                .ToList());
         }
 
         [Route("FetchPaginatedData")]
-        [HttpGet]
-        public ActionResult<List<FinVizDataItem>> FetchPaginatedData(int page = 1, int pageSize = 10)
+        [HttpPost]
+        public ActionResult<List<FinVizDataItem>> FetchPaginatedData(int page = 1, int pageSize = 10,
+            List<string> propsFilter = null)
         {
             if (page <= 0 || pageSize <= 0)
-            {
                 return BadRequest("Page and pageSize must be greater than zero.");
-            }
-            int totalItems = _dataService.Data.Count();
+            var data = GetFilteredData(propsFilter);
+            int totalItems = data.Count;
             int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
             if (page > totalPages)
-            {
                 return BadRequest("Requested page exceeds total number of pages.");
-            }
 
-            var paginatedData = _dataService.Data
+            var paginatedData = data
                 .OrderBy(i => i.Ticker)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -94,11 +70,31 @@ namespace StockMarketAnalyticsService.Controllers
             return paginatedData;
         }
 
-        [Route("FetchAllLatestData")]
+        [Route("StocksData")]
         [HttpPost]
-        public List<FinVizDataItem> FetchAllLatestData() =>
-            _dataService.Data
+        public ActionResult<List<FinVizDataItem>> GetStocksData(List<string> propsFilter = null) =>
+            Ok(GetFilteredData(propsFilter));
+
+        private List<FinVizDataItem> GetFilteredData(List<string> propsFilter = null)
+        {
+            if (propsFilter == null)
+                return _dataService.Data
                 .OrderBy(i => i.Ticker)
                 .ToList();
+
+            return _dataService.Data
+                .Select(item => new FinVizDataItem
+                {
+                    Id = item.Id,
+                    Version = item.Version,
+                    Date = item.Date,
+                    Ticker = item.Ticker,
+                    ItemProperties = item.ItemProperties
+                        .Where(kv => propsFilter.Any(key =>
+                            string.Equals(key, kv.Key, StringComparison.OrdinalIgnoreCase)))
+                        .ToDictionary(kv => kv.Key, kv => kv.Value)
+                })
+                .ToList();
+        }
     }
 }
