@@ -35,6 +35,16 @@ namespace FinVizScreenerTests
         }
 
         [Fact]
+        public void LocalLiteDBLoadSaveTest()
+        {
+            var dbAdapter = DBAdapterFactory.Resolve("LiteDB",
+                TestsConfig.LiteDBConnectionString);
+            var loadedData = dbAdapter.GetLatestData();
+            var result = dbAdapter.SaveData(loadedData);
+            Assert.Equal(0, result);
+        }
+
+        [Fact]
         public void LocalLiteDBLoadChangeSaveTest()
         {
             var dbAdapter = DBAdapterFactory.Resolve("LiteDB",
@@ -49,7 +59,8 @@ namespace FinVizScreenerTests
             }
             var beforeVersion = itemToOperate.Version;
             var beforeTicker = itemToOperate.Ticker;
-            dbAdapter.SaveData(new List<FinVizDataItem>() { itemToOperate });
+            var savedCount = dbAdapter.SaveData(new List<FinVizDataItem>() { itemToOperate });
+            Assert.Equal(1, savedCount);
             var afterItems = dbAdapter.GetLatestData();
             var afterItem = afterItems.Where(i => i.Ticker == beforeTicker).FirstOrDefault();
             Assert.NotNull(afterItem);

@@ -70,6 +70,7 @@ namespace FinVizScreener.Services
                 }
                 catch (Exception ex)
                 {
+                    _logger?.LogError(ex, "FinVizScrapperService: Issue with data downloading");
                 }
             }
         }

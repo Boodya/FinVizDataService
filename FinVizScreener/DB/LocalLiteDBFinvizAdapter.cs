@@ -72,15 +72,25 @@ namespace FinVizScreener.DB
             using (var db = new LiteDatabase(_dbPath))
             {
                 var collection = db.GetCollection<FinVizDataItem>(CollectionName);
+                var latestDbItems = collection.Query()
+                    .OrderByDescending(i => i.Version)
+                    .ToEnumerable()
+                    .GroupBy(i => i.Ticker)
+                    .ToDictionary(g => g.Key, g => g.First());
+
                 foreach (var item in data)
                 {
-                    var dbLastItem = collection.Query()
-                        .Where(i => i.Ticker == item.Ticker)
-                        .OrderByDescending(i => i.Version)
-                        .FirstOrDefault();
-
-                    if(IsDifferent(dbLastItem,item))
+                    if (latestDbItems.TryGetValue(item.Ticker, out var dbLastItem))
+                    {
+                        if (IsDifferent(dbLastItem, item))
+                        {
+                            result.Add(item);
+                        }
+                    }
+                    else
+                    {
                         result.Add(item);
+                    }
                 }
             }
             return result;
