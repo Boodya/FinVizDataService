@@ -1,6 +1,20 @@
 ﻿{
-  "filter": "p/e < 30 AND income > 0",
-  "sort": "income desc",
-  "select": "market cap, income, p/e",
+  "filter": "p/e < 30 AND income > 0 AND p/e > 5 AND market cap > 50000000000",
+  "sort": "Market Cap desc",
+  "select": "market cap, income, p/e, Fwd P/E, peg",
   "top": 10
+}
+
+{
+  "filter": "Insider Trans > 0 AND income > 0 AND market cap > 10000000000",
+  "sort": "Insider Trans desc",
+  "select": "market cap, income, p/e, Fwd P/E, Insider Trans",
+  "top": 10
+}
+
+{
+  "filter": "",
+  "sort": "income desc",
+  "select": "",
+  "top": 100
 }

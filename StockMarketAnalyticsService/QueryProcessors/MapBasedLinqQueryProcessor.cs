@@ -84,7 +84,7 @@ namespace StockMarketAnalyticsService.QueryProcessors
         private bool EvaluateCondition(Dictionary<string, string> itemProperties, string condition)
         {
             // Define possible operators in order of descending length
-            string[] operators = { ">=", "<=", ">", "<", "=" };
+            string[] operators = { "!=", ">=", "<=", ">", "<", "=" };
             string property = null;
             string @operator = null;
             string value = null;
@@ -112,11 +112,12 @@ namespace StockMarketAnalyticsService.QueryProcessors
 
             // Perform a case-insensitive lookup in itemProperties
             var dictEntry = itemProperties.FirstOrDefault(kv => kv.Key.Equals(property, StringComparison.OrdinalIgnoreCase));
-            if (string.IsNullOrEmpty(dictEntry.Key) || 
+            if (string.IsNullOrEmpty(dictEntry.Key) ||
                 string.IsNullOrEmpty(dictEntry.Value))
                 return false;
 
-            var dictValue = dictEntry.Value.ToLower(); // Normalize case for comparison
+            var dictValue = dictEntry.Value
+                .ToLower().Replace("%", ""); // Normalize case for comparison
 
             // Attempt numeric comparison if both values can be parsed as numbers
             if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var numericValue) &&
@@ -125,6 +126,7 @@ namespace StockMarketAnalyticsService.QueryProcessors
                 return @operator switch
                 {
                     "=" => dictNumericValue == numericValue,
+                    "!=" => dictNumericValue != numericValue,
                     ">" => dictNumericValue > numericValue,
                     "<" => dictNumericValue < numericValue,
                     ">=" => dictNumericValue >= numericValue,
@@ -138,6 +140,7 @@ namespace StockMarketAnalyticsService.QueryProcessors
             return @operator switch
             {
                 "=" => dictValue == value,
+                "!=" => dictValue != value,
                 ">" => string.Compare(dictValue, value, StringComparison.OrdinalIgnoreCase) > 0,
                 "<" => string.Compare(dictValue, value, StringComparison.OrdinalIgnoreCase) < 0,
                 ">=" => string.Compare(dictValue, value, StringComparison.OrdinalIgnoreCase) >= 0,
@@ -153,9 +156,14 @@ namespace StockMarketAnalyticsService.QueryProcessors
 
             for (int i = 0; i < sortExpressions.Length; i++)
             {
-                var sortParts = sortExpressions[i].Trim().Split(' ');
-                var property = sortParts[0].Trim().ToLower();
-                var descending = sortParts.Length > 1 && sortParts[1].ToLower() == "desc";
+                var match = Regex.Match(sortExpressions[i].Trim(), @"^(.*?)(\s+(asc|desc))?$", RegexOptions.IgnoreCase);
+                if (!match.Success)
+                {
+                    throw new ArgumentException($"Invalid sort expression: {sortExpressions[i]}");
+                }
+
+                var property = match.Groups[1].Value.Trim();
+                var descending = match.Groups[3].Success && match.Groups[3].Value.ToLower() == "desc";
 
                 Func<T, object> keySelector = item =>
                 {
@@ -166,8 +174,19 @@ namespace StockMarketAnalyticsService.QueryProcessors
                         if (itemProperties != null)
                         {
                             var matchingEntry = itemProperties
-                                .FirstOrDefault(kv => kv.Key.ToLower() == property);
-                            return matchingEntry.Value;
+                                .FirstOrDefault(kv => kv.Key.Equals(property, StringComparison.OrdinalIgnoreCase));
+
+                            if (matchingEntry.Value != null)
+                            {
+                                // Remove '%' and try to parse the value as a double
+                                if (double.TryParse(matchingEntry.Value.Replace("%", ""), NumberStyles.Any, CultureInfo.InvariantCulture, out var numericValue))
+                                {
+                                    return numericValue;
+                                }
+
+                                // If parsing fails, return the original string for lexicographical comparison
+                                return matchingEntry.Value;
+                            }
                         }
                     }
 
