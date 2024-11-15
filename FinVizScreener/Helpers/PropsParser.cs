@@ -1,4 +1,6 @@
-﻿namespace FinVizScreener.Helpers
+﻿using System.Globalization;
+
+namespace FinVizScreener.Helpers
 {
     internal static class PropsValidator
     {
@@ -7,7 +9,7 @@
             if (ValidateEmpty(value))
                 return "";
 
-            var validated = GetMultipliedValue(value)?.ToString("f2");
+            var validated = GetMultipliedValue(value)?.ToString("f2", CultureInfo.InvariantCulture);
             return validated ?? value; 
         }
 
@@ -23,19 +25,22 @@
             try
             {
                 var str = new string(value.Take(value.Length - 1).ToArray());
-                var numValue = double.Parse(str);
-                return last switch
+                if (double.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out double numValue))
                 {
-                    'K' => numValue * 1_000,
-                    'M' => numValue * 1_000_000,
-                    'B' => numValue * 1_000_000_000,
-                    _ => null
-                };
+                    return last switch
+                    {
+                        'K' => numValue * 1_000,
+                        'M' => numValue * 1_000_000,
+                        'B' => numValue * 1_000_000_000,
+                        _ => null
+                    };
+                }
             }
-            catch
+            catch(Exception ex)
             {
-                return null;
+                
             }
+            return null;
         }
 
         private static bool ValidateEmpty(string value)

@@ -9,6 +9,10 @@ namespace StockMarketAnalyticsService
     {
         public static void Configure(WebApplicationBuilder builder)
         {
+            builder.Configuration
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
             builder.Host.UseSerilog((context, config) =>
             {
                 config
@@ -16,14 +20,16 @@ namespace StockMarketAnalyticsService
                     .WriteTo.Console()
                     .WriteTo.File(
                         Path.Combine(AppContext.BaseDirectory, "logs", "log.txt"),
-                        rollingInterval: RollingInterval.Day, // Creates a new log file each day
-                        retainedFileCountLimit: 7,            // Retains log files for the last 7 days
+                        rollingInterval: RollingInterval.Day,
+                        retainedFileCountLimit: 7,
                         outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message}{NewLine}{Exception}"
                     );
             });
 
             var finVizConfig = new FinVizDataServiceConfigModel();
             builder.Configuration.GetSection("FinVizDataServiceConfigModel").Bind(finVizConfig);
+            if (string.IsNullOrEmpty(finVizConfig.DatabaseConnectionString))
+                throw new Exception("Unnable to parse database connection string from config file.");
             builder.Services.AddTransient<IFinvizDBAdapter>(provider =>
                 new LocalLiteDBFinvizAdapter(finVizConfig.DatabaseConnectionString));
 

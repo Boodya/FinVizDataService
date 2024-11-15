@@ -1,0 +1,6 @@
+﻿{
+  "filter": "p/e < 30 AND income > 0",
+  "sort": "income desc",
+  "select": "market cap, income, p/e",
+  "top": 10
+}

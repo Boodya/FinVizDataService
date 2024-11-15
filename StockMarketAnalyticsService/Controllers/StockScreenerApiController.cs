@@ -1,6 +1,8 @@
 ﻿using FinVizDataService.Models;
 using FinVizScreener.Services;
 using Microsoft.AspNetCore.Mvc;
+using StockMarketAnalyticsService.Models;
+using StockMarketAnalyticsService.QueryProcessors;
 
 namespace StockMarketAnalyticsService.Controllers
 {
@@ -9,10 +11,26 @@ namespace StockMarketAnalyticsService.Controllers
     public class StockScreenerApiController : ControllerBase
     {
         private FinVizScrapperService _dataService;
+        private MapBasedLinqQueryProcessor<FinVizDataItem> _queryProcessor;
         public StockScreenerApiController(ILogger<StockScreenerApiController> logger, 
             FinVizScrapperService ds)
         {
             _dataService = ds;
+            _queryProcessor = new MapBasedLinqQueryProcessor<FinVizDataItem>("ItemProperties");
+        }
+
+        [Route("Query")]
+        [HttpPost]
+        public ActionResult<List<FinVizDataItem>> Query(LinqProcessorRequestModel query)
+        {
+            try
+            {
+                return Ok(_queryProcessor.QueryData(_dataService.Data, query));
+            }
+            catch(Exception ex)
+            {
+                return BadRequest($"Error on processing query: {ex.Message}");
+            }
         }
 
         [Route("GetTickers")]
