@@ -8,6 +8,8 @@ namespace FinVizScreener.Helpers
             Action task, ILogger? logger=null)
         {
             await PauseUntil(ct, timeForExecution, logger);
+            logger?.Log(LogLevel.Information, $"ScheduledExecutor: " +
+                            $"task execution starting.");
             task.Invoke();
         }
 
@@ -20,11 +22,29 @@ namespace FinVizScreener.Helpers
             {
                 targetDateTime = targetDateTime.AddDays(1);
             }
-            TimeSpan delay = targetDateTime - now;
-            logger?.Log(LogLevel.Information, $"ScheduledExecutor: " +
-                            $"task execution postponed to {targetDateTime}. " +
-                            $"Waiting {delay.TotalSeconds} seconds.");
-            await Task.Delay(delay, ct);
+
+            logger?.Log(LogLevel.Information, $"ScheduledExecutor: Task execution postponed to {targetDateTime}.");
+
+            while (true)
+            {
+                now = DateTime.Now;
+                if (now >= targetDateTime)
+                {
+                    logger?.Log(LogLevel.Information, "ScheduledExecutor: Time has reached the target. Proceeding with task execution.");
+                    break;
+                }
+
+                TimeSpan remainingTime = targetDateTime - now;
+                try
+                {
+                    await Task.Delay(TimeSpan.FromMinutes(1), ct);
+                }
+                catch (TaskCanceledException)
+                {
+                    logger?.Log(LogLevel.Warning, "ScheduledExecutor: Task delay was canceled.");
+                    throw;
+                }
+            }
         }
     }
 }
