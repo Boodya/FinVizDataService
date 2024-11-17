@@ -9,5 +9,6 @@ namespace FinVizScreener.Models
         public TimeSpan ExecutionTime { get; set; }
         public string DatabaseType {  get; set; }
         public string DatabaseConnectionString { get; set; }
+        public bool IsSyncOnStart { get; set; }
     }
 }

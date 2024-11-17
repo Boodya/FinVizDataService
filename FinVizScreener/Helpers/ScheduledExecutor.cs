@@ -4,47 +4,57 @@ namespace FinVizScreener.Helpers
 {
     internal class ScheduledExecutor
     {
-        public static async Task RunScheduledTask(TimeSpan timeForExecution, CancellationToken ct,
-            Action task, ILogger? logger=null)
+        public static async Task ScheduleTaskExecution(
+            TimeSpan executionTime,
+            CancellationToken ct,
+            Func<Task> task,
+            bool isSyncOnStart = false,
+            ILogger? logger = null)
         {
-            await PauseUntil(ct, timeForExecution, logger);
-            logger?.Log(LogLevel.Information, $"ScheduledExecutor: " +
-                            $"task execution starting.");
-            task.Invoke();
-        }
-
-        private static async Task PauseUntil(CancellationToken ct, TimeSpan targetTime, ILogger? logger = null)
-        {
-            DateTime now = DateTime.Now;
-            DateTime targetDateTime = DateTime.Today.Add(targetTime);
-
-            if (now > targetDateTime)
+            if (isSyncOnStart)
             {
-                targetDateTime = targetDateTime.AddDays(1);
+                logger?.Log(LogLevel.Information, $"ScheduledExecutor: " +
+                            $"Executing task on start");
+                await task();
             }
-
-            logger?.Log(LogLevel.Information, $"ScheduledExecutor: Task execution postponed to {targetDateTime}.");
-
-            while (true)
+            while (!ct.IsCancellationRequested)
             {
-                now = DateTime.Now;
-                if (now >= targetDateTime)
-                {
-                    logger?.Log(LogLevel.Information, "ScheduledExecutor: Time has reached the target. Proceeding with task execution.");
-                    break;
-                }
-
-                TimeSpan remainingTime = targetDateTime - now;
                 try
                 {
-                    await Task.Delay(TimeSpan.FromMinutes(1), ct);
+                    var nowDate = DateTime.UtcNow;
+                    var nowExecDate = SetTime(nowDate, executionTime);
+                    var nextExecDate = SetTime(nowDate.AddDays(1), executionTime);
+                    var delay = nextExecDate - nowDate;
+                    logger?.Log(LogLevel.Information, $"ScheduledExecutor: " +
+                            $"Execution schedulled to {nextExecDate} UTC. Waiting {delay}");
+                    await Task.Delay(delay, ct);
+                    logger?.Log(LogLevel.Information, $"ScheduledExecutor: " +
+                            $"Executing task");
+                    await task();
                 }
-                catch (TaskCanceledException)
+                catch (OperationCanceledException)
                 {
-                    logger?.Log(LogLevel.Warning, "ScheduledExecutor: Task delay was canceled.");
-                    throw;
+                    logger?.LogInformation("ScheduledExecutor: execution cancelled.");
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    logger?.LogError(ex, "ScheduledExecutor: issue with task execution.");
                 }
             }
+        }
+
+        private static DateTime SetTime(DateTime date, TimeSpan time)
+        {
+            return new DateTime(
+                date.Year,
+                date.Month,
+                date.Day,
+                time.Hours,
+                time.Minutes,
+                time.Seconds,
+                date.Kind
+            );
         }
     }
 }

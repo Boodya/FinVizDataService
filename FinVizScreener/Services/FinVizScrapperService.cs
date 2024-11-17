@@ -29,7 +29,11 @@ namespace FinVizScreener.Services
                 .GetLatestData()
                 .ToList();
             _scrapperCancelToken = new CancellationToken();
-            _ = StartPeriodicScrapingAsync(_scrapperCancelToken);
+            //_ = StartPeriodicScrapingAsync(_scrapperCancelToken);
+            _ = ScheduledExecutor.ScheduleTaskExecution(_cfg.ExecutionTime, 
+                _scrapperCancelToken,
+                FetchAndSaveDataAsync, 
+                _cfg.IsSyncOnStart, _logger);
         }
 
         public Guid Subscribe(Action<FinVizDataItem> onDataUpdated)
@@ -57,12 +61,7 @@ namespace FinVizScreener.Services
             {
                 try
                 {
-                    await ScheduledExecutor.RunScheduledTask(_cfg.ExecutionTime, ct, async () =>
-                    {
-                        _logger?.Log(LogLevel.Information, $"FinVizScrapperService: " +
-                            $"performing data fetch");
-                        await FetchAndSaveDataAsync();
-                    }, _logger);
+                    
                 }
                 catch (OperationCanceledException)
                 {
@@ -77,6 +76,8 @@ namespace FinVizScreener.Services
 
         private async Task FetchAndSaveDataAsync()
         {
+            _logger?.Log(LogLevel.Information, $"FinVizScrapperService: " +
+                        $"performing data fetch");
             var dataItems = new List<FinVizDataItem>();
             await foreach (var item in _scrapper.ScrapeDataTableAsync(_cfg.EndpointUrl))
             {
