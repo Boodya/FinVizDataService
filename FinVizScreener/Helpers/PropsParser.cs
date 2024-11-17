@@ -6,8 +6,8 @@ namespace FinVizScreener.Helpers
     {
         public static string ValidatePropValue(string value)
         {
-            if (ValidateEmpty(value))
-                return "";
+            /*if (ValidateEmpty(value))
+                return "";*/
 
             var validated = GetMultipliedValue(value)?.ToString("f2", CultureInfo.InvariantCulture);
             return validated ?? value; 

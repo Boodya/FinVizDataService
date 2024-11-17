@@ -2,6 +2,7 @@
 using FinVizScreener.Models;
 using FinVizScreener.Services;
 using Serilog;
+using StockMarketAnalyticsService.Services;
 
 namespace StockMarketAnalyticsService
 {
@@ -30,19 +31,20 @@ namespace StockMarketAnalyticsService
             builder.Configuration.GetSection("FinVizDataServiceConfigModel").Bind(finVizConfig);
             if (string.IsNullOrEmpty(finVizConfig.DatabaseConnectionString))
                 throw new Exception("Unnable to parse database connection string from config file.");
-            builder.Services.AddTransient<IFinvizDBAdapter>(provider =>
-                new LocalLiteDBFinvizAdapter(finVizConfig.DatabaseConnectionString));
+            /*builder.Services.AddTransient<IFinvizDBAdapter>(provider =>
+                new LocalLiteDBSeparateFilesAdapter(finVizConfig.DatabaseConnectionString));*/
 
             builder.Services.AddSingleton(provider =>
             {
                 var logger = provider.GetRequiredService<ILogger<FinVizScrapperService>>();
                 return new FinVizScrapperService(finVizConfig, logger);
             });
+            builder.Services.AddSingleton<StockScreenerService>();
         }
 
         public static void PostConfigure(IServiceProvider app)
         {
-            _ = app.GetRequiredService<FinVizScrapperService>();
+            _ = app.GetRequiredService<StockScreenerService>();
         }
     }
 }

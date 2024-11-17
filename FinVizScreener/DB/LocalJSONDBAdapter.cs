@@ -3,10 +3,10 @@ using Newtonsoft.Json;
 
 namespace FinVizScreener.DB
 {
-    public class LocalJSONFinvizDBAdapter : IFinvizDBAdapter
+    public class LocalJSONDBAdapter : IFinvizDBAdapter
     {
         private readonly string _dbFolderPath;
-        public LocalJSONFinvizDBAdapter(string dbFolderPath)
+        public LocalJSONDBAdapter(string dbFolderPath)
         {
             _dbFolderPath = dbFolderPath;
             if (!Directory.Exists(dbFolderPath))

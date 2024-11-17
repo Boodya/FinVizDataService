@@ -3,12 +3,12 @@ using LiteDB;
 
 namespace FinVizScreener.DB
 {
-    public class LocalLiteDBFinvizAdapter : IFinvizDBAdapter
+    public class LocalLiteDBAdapter : IFinvizDBAdapter
     {
         private readonly string _dbPath;
         private const string CollectionName = "FinVizData";
 
-        public LocalLiteDBFinvizAdapter(string dbPath)
+        public LocalLiteDBAdapter(string dbPath)
         {
             _dbPath = dbPath;
         }

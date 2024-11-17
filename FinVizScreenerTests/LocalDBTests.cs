@@ -14,8 +14,8 @@ namespace FinVizScreenerTests
         [Fact]
         public void LocalLiteDBSaveLoadTest()
         {
-            var dbAdapter = DBAdapterFactory.Resolve("LiteDB",
-                TestsConfig.LiteDBConnectionString);
+            var dbAdapter = DBAdapterFactory.Resolve("LiteDBSeparate",
+                TestsConfig.LiteDBSeparatedConnectionString);
             var scrapper = new OnePageScrapper();
             var data = scrapper.ScrapeDataTable(TestsConfig.ScrappingUrl);
             var originalItem = data.FirstOrDefault();
@@ -30,14 +30,14 @@ namespace FinVizScreenerTests
 
             foreach(var propKey in originalItem.ItemProperties.Keys)
             {
-                Assert.True(originalItem.ItemProperties[propKey] ==  dbProcessedItem.ItemProperties[propKey]);
+                Assert.True(originalItem.ItemProperties[propKey] == dbProcessedItem.ItemProperties[propKey]);
             }
         }
 
         [Fact]
         public void LocalLiteDBLoadSaveTest()
         {
-            var dbAdapter = DBAdapterFactory.Resolve("LiteDB",
+            var dbAdapter = DBAdapterFactory.Resolve("LiteDBSeparate",
                 TestsConfig.LiteDBConnectionString);
             var loadedData = dbAdapter.GetLatestData();
             var result = dbAdapter.SaveData(loadedData);
