@@ -29,7 +29,7 @@ STRATEGIES:
   "top": 10
 }
 {
-  "filter": "EPS Surprise > 0 AND EPS Q/Q > 0 AND Income > 0 AND 52W Low < 5 AND 52W Low > 0",
+  "filter": "EPS Surprise > 0 AND EPS Q/Q > 0 AND Income > 0 AND 52W Low > 0 AND 52W Low < 5",
   "sort": "52W Low asc",
   "select": "ticker, company, income, 52W Low, 52W High, EPS Surprise, EPS Q/Q, revenue surprise",
   "top": 10
