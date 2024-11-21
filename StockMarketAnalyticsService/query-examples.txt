@@ -1,4 +1,5 @@
-﻿{
+﻿Request Examples:
+{
   "filter": "p/e < 30 AND income > 0 AND p/e > 5 AND market cap > 50000000000",
   "sort": "Market Cap desc",
   "select": "market cap, income, p/e, Fwd P/E, peg",
@@ -17,4 +18,76 @@
   "sort": "income desc",
   "select": "",
   "top": 100
+}
+
+STRATEGIES:
+1. Earnings Surprise Play (HIGHLY REALISTIC)
+{
+  "filter": "EPS Surprise > 0 AND EPS Q/Q > 0",
+  "sort": "EPS Surprise desc",
+  "select": "ticker, company, EPS Surprise, EPS Q/Q, revenue surprise",
+  "top": 10
+}
+{
+  "filter": "EPS Surprise > 0 AND EPS Q/Q > 0 AND Income > 0 AND 52W Low < 5 AND 52W Low > 0",
+  "sort": "52W Low asc",
+  "select": "ticker, company, income, 52W Low, 52W High, EPS Surprise, EPS Q/Q, revenue surprise",
+  "top": 10
+}
+
+2. Breakout Patterns (HIGHLY REALISTIC)
+{
+  "filter": "52W High - price <= 5 AND Rel Volume > 1",
+  "sort": "Rel Volume desc",
+  "select": "ticker, company, price, 52W High, Rel Volume",
+  "top": 10
+}
+
+3. Institutional Activity (REALISTIC)
+{
+  "filter": "Inst Trans > 0 AND Perf Month > 0",
+  "sort": "Inst Trans desc",
+  "select": "ticker, company, Inst Trans, Inst Own, Perf Month",
+  "top": 10
+}
+
+
+4. RSI and SMA Analysis (REALISTIC)
+{
+  "filter": "RSI < 30 AND SMA50 > SMA200",
+  "sort": "RSI asc",
+  "select": "ticker, company, RSI, SMA50, SMA200",
+  "top": 10
+}
+
+5. Volatility Screening (REALISTIC FOR SPECIFIC MARKETS)
+{
+  "filter": "Volatility W > 2 AND Perf Week > 0",
+  "sort": "Volatility W desc",
+  "select": "ticker, company, Volatility W, Perf Week, ATR",
+  "top": 10
+}
+
+6. Sector Rotation (REALISTIC)
+{
+  "filter": "Sector IN ('Technology', 'Healthcare') AND Perf Month > 0",
+  "sort": "Perf Month desc",
+  "select": "ticker, company, sector, Perf Month, Perf YTD",
+  "top": 10
+}
+
+7. Short Squeeze Opportunities (REALISTIC BUT RISKY)
+{
+  "filter": "Short Float > 10 AND SMA20 > SMA50",
+  "sort": "Short Float desc",
+  "select": "ticker, company, Short Float, SMA20, SMA50",
+  "top": 10
+}
+
+8. Growth Metrics (REALISTIC FOR SHORT TO MID-TERM)
+{
+  "filter": "EPS next Y > 10 AND EPS next 5Y > 15",
+  "sort": "EPS next Y desc",
+  "select": "ticker, company, EPS next Y, EPS next 5Y, Sales Q/Q",
+  "top": 10
 }
