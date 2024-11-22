@@ -1,0 +1,26 @@
+﻿@model List<StockMarketAnalyticsService.Models.LinqProcessorRequestModel>
+@{
+    ViewBag.Title = "Query List";
+}
+<a href="/Query/Edit">Add New Query</a>
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var query in Model)
+        {
+            <tr>
+                <td>@query.Name</td>
+                <td>
+                    <a href="/Query/Edit?id=@query.Id">Edit</a> |
+                    <a href="/Query/Delete?id=@query.Id">Delete</a> |
+                    <a href="/Query/Execute?id=@query.Id">Execute</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

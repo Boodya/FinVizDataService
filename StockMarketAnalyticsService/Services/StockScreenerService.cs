@@ -32,32 +32,23 @@ namespace StockMarketAnalyticsService.Services
             return tickers.Distinct().OrderBy(ticker => ticker).ToList();
         }
 
-        public List<FinVizDataItem> SearchByTicker(string searchTerm, List<string> propsFilter = null)
-        {
-            if (string.IsNullOrWhiteSpace(searchTerm))
-                throw new ArgumentException("Search term cannot be empty.");
-
-            return GetFilteredData(propsFilter)
-                .Where(item => item.Ticker.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
-                .OrderBy(item => item.Ticker)
-                .ToList();
-        }
-
-        public List<FinVizDataItem> FetchPaginatedData(int page, int pageSize, List<string> propsFilter = null)
+        public PaginatedQueryResponseModel<FinVizDataItem> FetchPaginatedData(int page, int pageSize, LinqProcessorRequestModel? query = null)
         {
             if (page <= 0 || pageSize <= 0)
-                throw new ArgumentException("Page and pageSize must be greater than zero.");
+                return default;
+            var data = _dataService.Data;
+            if (query != null)
+                data = QueryData(query);
 
-            var data = GetFilteredData(propsFilter);
             int totalItems = data.Count;
             int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
             if (page > totalPages)
-                throw new ArgumentException("Requested page exceeds total number of pages.");
+                return default;
 
-            return data.OrderBy(i => i.Ticker)
-                       .Skip((page - 1) * pageSize)
+            var dataSet = data.Skip((page - 1) * pageSize)
                        .Take(pageSize)
                        .ToList();
+            return new PaginatedQueryResponseModel<FinVizDataItem>(page, pageSize, data.Count, dataSet);
         }
 
         public List<FinVizDataItem> GetStocksData(List<string> propsFilter = null)

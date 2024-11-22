@@ -1,6 +1,6 @@
 ﻿Request Examples:
 {
-  "filter": "p/e < 30 AND income > 0 AND p/e > 5 AND market cap > 50000000000",
+  "filter": "[p/e] < 30 AND [income] > 0 AND [p/e] > 5 AND [market cap] > 50000000000",
   "sort": "Market Cap desc",
   "select": "market cap, income, p/e, Fwd P/E, peg",
   "top": 10

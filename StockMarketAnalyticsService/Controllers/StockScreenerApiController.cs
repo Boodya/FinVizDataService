@@ -16,6 +16,14 @@ namespace StockMarketAnalyticsService.Controllers
             _stockScreenerService = stockScreenerService;
         }
 
+        [Route("GetSupportedTickers")]
+        [HttpPost]
+        public ActionResult<List<string>> GetTickerList()
+        {
+            return Ok(_stockScreenerService
+                .GetTickerList());
+        }
+
         [Route("Query")]
         [HttpPost]
         public ActionResult<List<FinVizDataItem>> Query(LinqProcessorRequestModel query)
@@ -30,46 +38,18 @@ namespace StockMarketAnalyticsService.Controllers
             }
         }
 
-        [Route("GetTickers")]
+        [Route("PaginatedQuery")]
         [HttpPost]
-        public ActionResult<List<string>> GetTickerList(string searchTerm = "")
-        {
-            return Ok(_stockScreenerService.GetTickerList(searchTerm));
-        }
-
-        [Route("SearchByTicker")]
-        [HttpPost]
-        public ActionResult<List<FinVizDataItem>> SearchByTicker(string searchTerm, List<string> propsFilter = null)
+        public ActionResult<PaginatedQueryResponseModel<FinVizDataItem>> FetchPaginatedData(int page = 1, int pageSize = 10, LinqProcessorRequestModel? query = null)
         {
             try
             {
-                return Ok(_stockScreenerService.SearchByTicker(searchTerm, propsFilter));
+                return Ok(_stockScreenerService.FetchPaginatedData(page, pageSize, query));
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-        }
-
-        [Route("FetchPaginatedData")]
-        [HttpPost]
-        public ActionResult<List<FinVizDataItem>> FetchPaginatedData(int page = 1, int pageSize = 10, List<string> propsFilter = null)
-        {
-            try
-            {
-                return Ok(_stockScreenerService.FetchPaginatedData(page, pageSize, propsFilter));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [Route("StocksData")]
-        [HttpPost]
-        public ActionResult<List<FinVizDataItem>> GetStocksData(List<string> propsFilter = null)
-        {
-            return Ok(_stockScreenerService.GetStocksData(propsFilter));
         }
     }
 }

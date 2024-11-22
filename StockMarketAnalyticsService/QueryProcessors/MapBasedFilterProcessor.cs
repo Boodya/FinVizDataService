@@ -1,4 +1,7 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace StockMarketAnalyticsService.QueryProcessors
@@ -53,19 +56,19 @@ namespace StockMarketAnalyticsService.QueryProcessors
 
         private bool EvaluateCondition(Dictionary<string, string> itemProperties, string condition)
         {
-            string[] operators = { "!=", ">=", "<=", ">", "<", "=" };
-            string leftProperty = null;
+            string[] operators = { "!=", ">=", "<=", ">", "<", "=", "contains" };
+            string leftExpression = null;
             string @operator = null;
-            string rightPropertyOrValue = null;
+            string rightExpression = null;
 
             foreach (var op in operators)
             {
-                var opIndex = condition.IndexOf(op, StringComparison.Ordinal);
+                var opIndex = condition.IndexOf(op, StringComparison.OrdinalIgnoreCase);
                 if (opIndex > -1)
                 {
-                    leftProperty = condition.Substring(0, opIndex).Trim();
+                    leftExpression = condition.Substring(0, opIndex).Trim();
                     @operator = op;
-                    rightPropertyOrValue = condition.Substring(opIndex + op.Length).Trim();
+                    rightExpression = condition.Substring(opIndex + op.Length).Trim();
                     break;
                 }
             }
@@ -75,19 +78,16 @@ namespace StockMarketAnalyticsService.QueryProcessors
                 throw new ArgumentException($"Invalid condition: {condition}");
             }
 
-            var leftValue = itemProperties.FirstOrDefault(kv => kv.Key.Equals(leftProperty, StringComparison.OrdinalIgnoreCase)).Value;
-            if (string.IsNullOrEmpty(leftValue))
-            {
-                return false;
-            }
-            leftValue = leftValue.ToLower().Replace("%", "").Trim();
+            var leftValue = EvaluateExpression(itemProperties, leftExpression);
+            var rightValue = EvaluateExpression(itemProperties, rightExpression);
 
-            var rightValue = itemProperties.FirstOrDefault(kv => kv.Key.Equals(rightPropertyOrValue, StringComparison.OrdinalIgnoreCase)).Value;
-            if (string.IsNullOrEmpty(rightValue))
+            leftValue = leftValue.ToLowerInvariant();
+            rightValue = rightValue.ToLowerInvariant();
+
+            if (@operator.Equals("contains", StringComparison.OrdinalIgnoreCase))
             {
-                rightValue = rightPropertyOrValue;
+                return leftValue.Contains(rightValue, StringComparison.OrdinalIgnoreCase);
             }
-            rightValue = rightValue.ToLower().Replace("%", "").Trim();
 
             if (double.TryParse(leftValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var leftNumericValue) &&
                 double.TryParse(rightValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var rightNumericValue))
@@ -104,6 +104,21 @@ namespace StockMarketAnalyticsService.QueryProcessors
                 };
             }
 
+            if (DateTime.TryParse(leftValue, CultureInfo.InvariantCulture, DateTimeStyles.None, out var leftDateValue) &&
+                DateTime.TryParse(rightValue, CultureInfo.InvariantCulture, DateTimeStyles.None, out var rightDateValue))
+            {
+                return @operator switch
+                {
+                    "=" => leftDateValue == rightDateValue,
+                    "!=" => leftDateValue != rightDateValue,
+                    ">" => leftDateValue > rightDateValue,
+                    "<" => leftDateValue < rightDateValue,
+                    ">=" => leftDateValue >= rightDateValue,
+                    "<=" => leftDateValue <= rightDateValue,
+                    _ => false,
+                };
+            }
+
             return @operator switch
             {
                 "=" => string.Equals(leftValue, rightValue, StringComparison.OrdinalIgnoreCase),
@@ -114,6 +129,51 @@ namespace StockMarketAnalyticsService.QueryProcessors
                 "<=" => string.Compare(leftValue, rightValue, StringComparison.OrdinalIgnoreCase) <= 0,
                 _ => false,
             };
+        }
+
+        private string EvaluateExpression(Dictionary<string, string> itemProperties, string expression)
+        {
+            var propertyMatch = Regex.Match(expression, @"^\[(.*?)\]$");
+            if (propertyMatch.Success)
+            {
+                var propertyName = propertyMatch.Groups[1].Value;
+                return itemProperties.FirstOrDefault(kv => kv.Key.Equals(propertyName, StringComparison.OrdinalIgnoreCase)).Value ?? string.Empty;
+            }
+
+            var arithmeticMatch = Regex.Match(expression, @"^\[(.*?)\]\s*([-+*/])\s*\[(.*?)\]$");
+            if (arithmeticMatch.Success)
+            {
+                var leftProperty = arithmeticMatch.Groups[1].Value;
+                var @operator = arithmeticMatch.Groups[2].Value;
+                var rightProperty = arithmeticMatch.Groups[3].Value;
+
+                var leftValue = double.TryParse(
+                    itemProperties.FirstOrDefault(kv => kv.Key.Equals(leftProperty, StringComparison.OrdinalIgnoreCase)).Value ?? "0",
+                    NumberStyles.Any,
+                    CultureInfo.InvariantCulture,
+                    out var leftNumericValue)
+                    ? leftNumericValue
+                    : 0;
+
+                var rightValue = double.TryParse(
+                    itemProperties.FirstOrDefault(kv => kv.Key.Equals(rightProperty, StringComparison.OrdinalIgnoreCase)).Value ?? "0",
+                    NumberStyles.Any,
+                    CultureInfo.InvariantCulture,
+                    out var rightNumericValue)
+                    ? rightNumericValue
+                    : 0;
+
+                return @operator switch
+                {
+                    "+" => (leftNumericValue + rightNumericValue).ToString(CultureInfo.InvariantCulture),
+                    "-" => (leftNumericValue - rightNumericValue).ToString(CultureInfo.InvariantCulture),
+                    "*" => (leftNumericValue * rightNumericValue).ToString(CultureInfo.InvariantCulture),
+                    "/" => (rightNumericValue != 0 ? (leftNumericValue / rightNumericValue) : 0).ToString(CultureInfo.InvariantCulture),
+                    _ => "0",
+                };
+            }
+
+            return expression;
         }
     }
 }

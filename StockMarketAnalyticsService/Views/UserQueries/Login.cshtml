@@ -1,0 +1,13 @@
+﻿@{
+    ViewBag.Title = "Login";
+}
+<h1>Login</h1>
+<form method="post" action="/Query/Authenticate">
+    <label>Email:</label>
+    <input type="email" name="email" required />
+    <button type="submit">Login</button>
+</form>
+@if (ViewBag.Message != null)
+{
+    <p style="color:red;">@ViewBag.Message</p>
+}

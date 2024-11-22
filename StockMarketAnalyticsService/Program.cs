@@ -16,6 +16,7 @@ ServiceConfigurator.PostConfigure(app.Services);
 
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseSession();
 
 app.UseAuthorization();
 app.MapControllerRoute(

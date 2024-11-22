@@ -40,6 +40,14 @@ namespace StockMarketAnalyticsService
                 return new FinVizScrapperService(finVizConfig, logger);
             });
             builder.Services.AddSingleton<StockScreenerService>();
+
+            builder.Services.AddDistributedMemoryCache(); // Use in-memory cache for session storage
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30); // Session timeout
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
         }
 
         public static void PostConfigure(IServiceProvider app)
