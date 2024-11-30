@@ -1,4 +1,6 @@
-﻿@model List<StockMarketAnalyticsService.Models.LinqProcessorRequestModel>
+﻿@using Newtonsoft.Json
+@using StockMarketAnalyticsService.Models
+@model List<UserQueryModel>
 @{
     ViewBag.Title = "Query List";
 }
@@ -6,19 +8,23 @@
 <table>
     <thead>
         <tr>
-            <th>Name</th>
-            <th>Actions</th>
+            <th>Title</th>
+            <th>Query</th>
+            <th>Action</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var query in Model)
         {
             <tr>
-                <td>@query.Name</td>
+                <td>@query.QueryTitle</td>
                 <td>
-                    <a href="/Query/Edit?id=@query.Id">Edit</a> |
-                    <a href="/Query/Delete?id=@query.Id">Delete</a> |
-                    <a href="/Query/Execute?id=@query.Id">Execute</a>
+                    <pre>@Html.Raw(JsonConvert.SerializeObject(query.Query, Formatting.Indented))</pre>
+                </td>
+                <td>
+                    <a href="/Query/Edit?id=@query.QueryId">Edit</a> |
+                    <a href="/Query/Delete?id=@query.QueryId">Delete</a> |
+                    <a href="/Query/Execute?id=@query.QueryId">Execute</a>
                 </td>
             </tr>
         }

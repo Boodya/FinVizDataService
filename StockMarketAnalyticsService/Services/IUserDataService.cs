@@ -4,11 +4,10 @@ namespace StockMarketAnalyticsService.Services
 {
     public interface IUserDataService
     {
-        UserQueryModel GetUser(string email);
-        void SetUser(UserQueryModel user);
-        List<LinqProcessorRequestModel> GetUserQueries(string email);
-        void SaveQuery(string email, LinqProcessorRequestModel query);
-        void DeleteQuery(string email, LinqProcessorRequestModel query);
+        UserModel GetUser(string email);
+        UserModel GetUserById(int userId);
+        void DeleteUser(int userId);
+        int AddOrUpdateUser(UserModel user);
+        IUserQueriesService QueriesService { get; }  
     }
-
 }

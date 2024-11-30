@@ -5,57 +5,65 @@ namespace StockMarketAnalyticsService.Services
 {
     public class LiteDBUserDataService : IUserDataService
     {
-        private readonly LiteDatabase _db;
+        private string _databasePath;
+        private const string _usersCollection = "Users";
+        private IUserQueriesService _queriesService;
+        public IUserQueriesService QueriesService => _queriesService;
 
-        public LiteDBUserDataService(string dbConnectionString)
+        public LiteDBUserDataService(string dbPath)
         {
-            _db = new LiteDatabase(dbConnectionString);
+            _databasePath = dbPath;
+            _queriesService = new LiteDBUserQueriesService(dbPath);
         }
 
-        public UserQueryModel GetUser(string email)
+        public UserModel GetUser(string email)
         {
-            var users = _db.GetCollection<UserQueryModel>("users");
-            return users.FindOne(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
-        }
-
-        public void SetUser(UserQueryModel user)
-        {
-            var users = _db.GetCollection<UserQueryModel>("users");
-
-            users.EnsureIndex(u => u.Email);
-
-            var existingUser = users.FindOne(u => u.Email.Equals(user.Email, StringComparison.OrdinalIgnoreCase));
-            if (existingUser == null)
+            using (var db = new LiteDatabase(_databasePath))
             {
-                user.Id = Guid.NewGuid().ToString();
-                users.Insert(user);
-            }
-            else
-            {
-                user.Id = existingUser.Id;
-                users.Update(user);
+                var users = db.GetCollection<UserModel>(_usersCollection);
+                return users.FindOne(u => u.Email == email);
             }
         }
 
-        public List<LinqProcessorRequestModel> GetUserQueries(string email) =>
-            GetUser(email)?.Queries ?? new List<LinqProcessorRequestModel>();
-
-        public void SaveQuery(string email, LinqProcessorRequestModel query)
+        public int AddOrUpdateUser(UserModel user)
         {
-            var users = _db.GetCollection<UserQueryModel>("users");
-            var user = users.FindOne(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
-
-            if (user == null)
+            using (var db = new LiteDatabase(_databasePath))
             {
-                throw new InvalidOperationException($"User with email '{email}' not found.");
+                var users = db.GetCollection<UserModel>(_usersCollection);
+
+                users.EnsureIndex(u => u.Id, true);
+
+                if (user.Id == 0)
+                {
+                    return users.Insert(user);
+                }
+                else
+                {
+                    users.Update(user);
+                    return user.Id;
+                }
             }
-            user.Queries.Add(query);
-            users.Update(user);
         }
 
-        public void DeleteQuery(string email, LinqProcessorRequestModel query)
+        public UserModel GetUserById(int userId)
         {
-            throw new NotImplementedException();
+            using (var db = new LiteDatabase(_databasePath))
+            {
+                var users = db.GetCollection<UserModel>(_usersCollection);
+                return users.FindById(userId);
+            }
+        }
+
+        public void DeleteUser(int userId)
+        {
+            using (var db = new LiteDatabase(_databasePath))
+            {
+                var users = db.GetCollection<UserModel>(_usersCollection);
+                var userQueries = _queriesService.GetUserQueries(userId);
+                users.Delete(userId);
+                userQueries.ForEach(
+                    _queriesService.DeleteQuery);
+            }
         }
     }
 

@@ -1,5 +1,4 @@
-﻿using FinVizScreener.Services;
-using LiteDB;
+﻿using LiteDB;
 using Microsoft.AspNetCore.Mvc;
 using StockMarketAnalyticsService.Models;
 using StockMarketAnalyticsService.Services;
@@ -36,54 +35,60 @@ namespace StockMarketAnalyticsService.Controllers
 
         public ActionResult List()
         {
-            if (NeedLogin())
+            var userId = GetContextUserId();
+            if (userId == null)
                 return RedirectToAction("Login");
-            var email = HttpContext.Session.GetString("Email");
-            return View(_userDataService
-                .GetUserQueries(email).ToList());
+            return View(_userDataService.QueriesService
+                .GetUserQueries(userId.Value));
         }
 
-        public ActionResult Edit(int indx)
+        public ActionResult Edit(int queryId)
         {
             if (NeedLogin())
                 return RedirectToAction("Login");
-            var email = HttpContext.Session.GetString("Email");
-            var queries = _userDataService
-                .GetUserQueries(email).ToList();
-            return View(queries[indx]);
+            return View(_userDataService.
+                QueriesService.GetQuery(queryId));
         }
 
         [HttpPost]
-        public ActionResult Save(LinqProcessorRequestModel query)
+        public ActionResult Save(UserQueryModel query)
         {
             if (NeedLogin())
                 return RedirectToAction("Login");
-            var email = HttpContext.Session.GetString("Email");
-            _userDataService.SaveQuery(email, query);
+            _userDataService.QueriesService.AddOrUpdateQuery(query);
             return RedirectToAction("List");
         }
 
-        public ActionResult Delete(LinqProcessorRequestModel query)
+        public ActionResult Delete(UserQueryModel query)
         {
             if (NeedLogin())
                 return RedirectToAction("Login");
-            var email = HttpContext.Session.GetString("Email");
-            _userDataService.DeleteQuery(email, query);
+            _userDataService.QueriesService.DeleteQuery(query);
             return RedirectToAction("List");
         }
 
-        public ActionResult Execute(LinqProcessorRequestModel query)
+        public ActionResult Execute(UserQueryModel query)
         {
             if (NeedLogin())
                 return RedirectToAction("Login");
-            var result = _stockScreenerService.QueryData(query);
+            var result = _stockScreenerService.QueryData(query.Query);
             return View("ExecuteResult", result);
         }
 
-        private bool NeedLogin()
+        private bool NeedLogin() =>
+            GetContextUserLogin() == null;
+
+        private string? GetContextUserLogin()
         {
-            var email = HttpContext.Session.GetString("Email");
-            return string.IsNullOrEmpty(email);
+            return HttpContext.Session.GetString("Email");
+        }
+
+        private int? GetContextUserId()
+        {
+            var userLogin = GetContextUserLogin();
+            if (userLogin == null)
+                return null;
+            return _userDataService.GetUser(userLogin)?.Id;
         }
     }
 }

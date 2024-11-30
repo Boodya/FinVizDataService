@@ -1,17 +1,20 @@
-﻿@model StockMarketAnalyticsService.Models.LinqProcessorRequestModel
+﻿@using StockMarketAnalyticsService.Models
+@model UserQueryModel
 @{
-    ViewBag.Title = Model. == null ? "Add Query" : "Edit Query";
+    ViewBag.Title = Model == null ? "Add Query" : "Edit Query";
 }
 <h1>@ViewBag.Title</h1>
 <form method="post" action="/Query/Save">
+    <label>Name:</label>
+    <textarea name="Filter" required>@Model.QueryTitle</textarea>
     <label>Filter:</label>
-    <textarea name="Filter" required>@Model.Filter</textarea>
+    <textarea name="Filter" required>@Model.Query.Filter</textarea>
     <label>Sort:</label>
-    <input type="text" name="Sort" value="@Model.Sort" />
+    <input type="text" name="Sort" value="@Model.Query.Sort" />
     <label>Select:</label>
-    <input type="text" name="Select" value="@Model.Select" />
+    <input type="text" name="Select" value="@Model.Query.Select" />
     <label>Top:</label>
-    <input type="number" name="Top" value="@Model.Top" required />
+    <input type="number" name="Top" value="@Model.Query.Top" required />
     <button type="submit">Save</button>
     <a href="/Query/List">Cancel</a>
 </form>
