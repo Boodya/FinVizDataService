@@ -1,30 +1,43 @@
 ﻿@model IEnumerable<FinVizDataService.Models.FinVizDataItem>
+
 @{
-    ViewBag.Title = "Query Execution Result";
+    ViewBag.Title = "Query Results";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<h1>Query Execution Result</h1>
-<table>
-    <thead>
-        <tr>
-            <th>Ticker</th>
-            <th>Date</th>
-            <th>Properties</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
+
+<div class="container mt-4">
+    <h1 class="text-center mb-4">@ViewBag.Title</h1>
+
+    <div class="row">
+        @if (!Model.Any())
         {
-            <tr>
-                <td>@item.Ticker</td>
-                <td>@item.Date</td>
-                <td>
-                    @foreach (var kvp in item.ItemProperties)
-                    {
-                        <p>@kvp.Key: @kvp.Value</p>
-                    }
-                </td>
-            </tr>
+            <div class="col-12">
+                <p class="text-muted text-center">No results available.</p>
+            </div>
         }
-    </tbody>
-</table>
+        else
+        {
+            @foreach (var item in Model)
+            {
+                <div class="col-12 col-md-6 col-lg-4 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">@item.Ticker</h5>
+                            <small>@item.Date.ToString("yyyy-MM-dd")</small>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0">
+                                @foreach (var kvp in item.ItemProperties)
+                                {
+                                    <li>
+                                        <strong>@kvp.Key:</strong> @kvp.Value
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

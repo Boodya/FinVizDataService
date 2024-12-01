@@ -27,17 +27,15 @@ namespace StockMarketServiceDatabase.Services.Queries
             using (var db = new LiteDatabase(_databasePath))
             {
                 var queries = db.GetCollection<UserQueryModel>(_queriesCollection);
-
-                queries.EnsureIndex(u => u.QueryId, true);
-
-                if (query.QueryId == 0)
+                queries.EnsureIndex(u => u.Id, true);
+                if (query.Id == 0)
                 {
                     return queries.Insert(query);
                 }
                 else
                 {
                     queries.Update(query);
-                    return query.QueryId;
+                    return query.Id;
                 }
             }
         }
@@ -47,16 +45,16 @@ namespace StockMarketServiceDatabase.Services.Queries
             using (var db = new LiteDatabase(_databasePath))
             {
                 var queries = db.GetCollection<UserQueryModel>(_queriesCollection);
-                queries.DeleteMany(q => q.QueryId == query.QueryId);
+                queries.DeleteMany(q => q.Id == query.Id);
             }
         }
 
-        public UserQueryModel GetQuery(int queryId)
+        public UserQueryModel GetQuery(int Id)
         {
             using (var db = new LiteDatabase(_databasePath))
             {
                 var queries = db.GetCollection<UserQueryModel>(_queriesCollection);
-                return queries.Find(q => q.QueryId == queryId)
+                return queries.Find(q => q.Id == Id)
                     .FirstOrDefault();
             }
         }

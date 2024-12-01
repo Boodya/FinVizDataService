@@ -12,7 +12,7 @@ var app = builder.Build();
 
 app.UseSerilogRequestLogging();
 
-ServiceConfigurator.PostConfigure(app.Services);
+ServiceConfigurator.PostConfigure(app);
 
 app.UseStaticFiles();
 app.UseSession();
@@ -24,6 +24,5 @@ app.MapControllerRoute(
 
 app.UseSwagger();
 app.UseSwaggerUI();
-
 app.MapControllers();
 app.Run();

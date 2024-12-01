@@ -1,37 +1,49 @@
 ﻿@using StockMarketServiceDatabase.Models
-@model UserQueryModel?
+@model UserQueryModel
 
 @{
-    ViewBag.Title = Model == null ? "Add Query" : "Edit Query";
+    ViewBag.Title = Model == null || Model.Id == 0 ? "Add Query" : "Edit Query";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container">
     <h1 class="mb-4 text-center">@ViewBag.Title</h1>
-    <form method="post" action="/Home/SaveUserQuery" class="row g-3">
+    <form method="post" action="@Url.Action("SaveUserQuery", "Home")" class="row g-3">
+        @Html.HiddenFor(m => m.UserId)
+        @Html.HiddenFor(m => m.Id)
         <div class="col-12">
-            <label for="QueryTitle" class="form-label">Name:</label>
-            <textarea id="QueryTitle" name="QueryTitle" class="form-control" rows="2">@Model?.QueryTitle</textarea>
+            <label for="QueryTitle" class="form-label">Query Title:</label>
+            @Html.TextBoxFor(m => m.QueryTitle, new { @class = "form-control", id = "QueryTitle" })
         </div>
+        
         <div class="col-12">
             <label for="Query.Filter" class="form-label">Filter:</label>
-            <textarea id="Filter" name="Query.Filter" class="form-control" rows="3">@Model?.Query.Filter</textarea>
+            @Html.TextBoxFor(m => m.Filter, new { @class = "form-control", id = "Query.Filter" })
         </div>
+
         <div class="col-12 col-md-6">
             <label for="Query.Sort" class="form-label">Sort:</label>
-            <input id="Sort" type="text" name="Query.Sort" value="@Model?.Query.Sort" class="form-control" />
+            @Html.TextBoxFor(m => m.Sort, new { @class = "form-control", id = "Query.Sort" })
         </div>
+
         <div class="col-12 col-md-6">
             <label for="Query.Select" class="form-label">Select:</label>
-            <input id="Select" type="text" name="Query.Select" value="@Model?.Query.Select" class="form-control" />
+            @Html.TextBoxFor(m => m.Select, new { @class = "form-control", id = "Query.Select" })
         </div>
+
         <div class="col-12 col-md-6">
             <label for="Query.Top" class="form-label">Top:</label>
-            <input id="Top" type="number" name="Query.Top" value="@Model?.Query.Top" class="form-control" />
+            @Html.TextBoxFor(m => m.Top, new { @class = "form-control", id = "Query.Top", type = "number" })
         </div>
+
+        <div class="col-12 col-md-6">
+            <label for="Query.Page" class="form-label">Page:</label>
+            @Html.TextBoxFor(m => m.Page, new { @class = "form-control", id = "Query.Page", type = "number" })
+        </div>
+
         <div class="col-12 text-center mt-4">
             <button type="submit" class="btn btn-primary px-4">Save</button>
-            <a href="/Home/List" class="btn btn-secondary px-4 ms-3">Cancel</a>
+            <a asp-action="List" asp-controller="Home" class="btn btn-secondary px-4 ms-3">Cancel</a>
         </div>
     </form>
 </div>

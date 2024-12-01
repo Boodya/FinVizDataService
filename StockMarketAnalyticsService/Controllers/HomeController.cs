@@ -64,19 +64,22 @@ namespace StockMarketAnalyticsService.Controllers
                 .GetUserQueries(userId.Value));
         }
 
-        public ActionResult Edit(int queryId)
+        public ActionResult Edit(int Id)
         {
             var isValid = ModelState.IsValid;
             if (NeedLogin())
                 return RedirectToAction("Login");
-            if (queryId == 0)
-                return View(new UserQueryModel()
+            if (Id == 0)
+            {
+                var nQuery = new UserQueryModel()
                 {
                     UserId = GetContextUserId().Value,
                     QueryTitle = "TEST"
-                });
+                };
+                return View(nQuery);
+            }
             return View(_userDataService.
-                QueriesService.GetQuery(queryId));
+                QueriesService.GetQuery(Id));
         }
 
         [HttpPost]
@@ -84,11 +87,7 @@ namespace StockMarketAnalyticsService.Controllers
         {
             if (!ModelState.IsValid)
             {
-                // Log validation errors
-                foreach (var error in ModelState)
-                {
-                    Console.WriteLine($"Key: {error.Key}, Error: {string.Join(", ", error.Value.Errors.Select(e => e.ErrorMessage))}");
-                }
+                return View("Edit", query);
             }
             if (NeedLogin())
                 return RedirectToAction("Login");
@@ -96,20 +95,25 @@ namespace StockMarketAnalyticsService.Controllers
             return RedirectToAction("List");
         }
 
-        public ActionResult Delete(UserQueryModel query)
+        public ActionResult Delete(int queryId)
         {
             if (NeedLogin())
                 return RedirectToAction("Login");
-            _userDataService.QueriesService.DeleteQuery(query);
+            _userDataService.QueriesService.DeleteQuery(
+                _userDataService.QueriesService.GetQuery(queryId));
             return RedirectToAction("List");
         }
 
-        public ActionResult Execute(UserQueryModel query)
+        public ActionResult Execute(int queryId)
         {
             if (NeedLogin())
                 return RedirectToAction("Login");
-            var result = _stockScreenerService.QueryData(query.Query);
-            return View("ExecuteResult", result);
+            var query = _userDataService
+                .QueriesService.GetQuery(queryId);
+            if (query == null)
+                return View("List");
+            var result = _stockScreenerService.QueryData(query);
+            return View("QueryResults", result);
         }
 
         private bool NeedLogin() =>

@@ -1,15 +1,9 @@
 ﻿namespace StockMarketServiceDatabase.Models
 {
-    public class UserQueryModel
+    public class UserQueryModel : LinqProcessorRequestModel
     {
+        public int Id { get; set; }
         public int UserId { get; set; }
-        public int QueryId { get; set; }
         public string QueryTitle { get; set; }
-        public LinqProcessorRequestModel Query { get; set; }
-
-        public UserQueryModel()
-        {
-            Query = new();
-        }
     }
 }

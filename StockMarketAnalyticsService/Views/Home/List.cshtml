@@ -29,13 +29,15 @@
                     <tr>
                         <td>@query.QueryTitle</td>
                         <td>
-                            <pre class="m-0 p-2 bg-light rounded border">@Html.Raw(JsonConvert.SerializeObject(query.Query, Formatting.Indented))</pre>
+                            <pre class="">@Html.Raw(JsonConvert.SerializeObject(
+                                query as LinqProcessorRequestModel, Formatting.Indented))
+                            </pre>
                         </td>
                         <td class="text-center">
                             <div class="d-flex justify-content-center">
-                                <a href="/Query/Edit?id=@query.QueryId" class="btn btn-sm btn-warning me-2">Edit</a>
-                                <a href="/Query/Delete?id=@query.QueryId" class="btn btn-sm btn-danger me-2">Delete</a>
-                                <a href="/Query/Execute?id=@query.QueryId" class="btn btn-sm btn-success">Execute</a>
+                                <a href="/Home/Edit?queryId=@query.Id" class="btn btn-sm btn-warning me-2">Edit</a>
+                                <a href="/Home/Delete?queryId=@query.Id" class="btn btn-sm btn-danger me-2">Delete</a>
+                                <a href="/Home/Execute?queryId=@query.Id" class="btn btn-sm btn-success">Execute</a>
                             </div>
                         </td>
                     </tr>

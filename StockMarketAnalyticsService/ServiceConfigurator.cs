@@ -62,9 +62,9 @@ namespace StockMarketAnalyticsService
             });
         }
 
-        public static void PostConfigure(IServiceProvider app)
+        public static void PostConfigure(WebApplication app)
         {
-            _ = app.GetRequiredService<StockScreenerService>();
+            _ = app.Services.GetRequiredService<StockScreenerService>();
         }
     }
 }
