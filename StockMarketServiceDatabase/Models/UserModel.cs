@@ -1,4 +1,4 @@
-﻿namespace StockMarketAnalyticsService.Models
+﻿namespace StockMarketServiceDatabase.Models
 {
     public class UserModel
     {

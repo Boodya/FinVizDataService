@@ -1,0 +1,37 @@
+﻿@using StockMarketServiceDatabase.Models
+@model UserQueryModel?
+
+@{
+    ViewBag.Title = Model == null ? "Add Query" : "Edit Query";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <h1 class="mb-4 text-center">@ViewBag.Title</h1>
+    <form method="post" action="/Home/SaveUserQuery" class="row g-3">
+        <div class="col-12">
+            <label for="QueryTitle" class="form-label">Name:</label>
+            <textarea id="QueryTitle" name="QueryTitle" class="form-control" rows="2">@Model?.QueryTitle</textarea>
+        </div>
+        <div class="col-12">
+            <label for="Query.Filter" class="form-label">Filter:</label>
+            <textarea id="Filter" name="Query.Filter" class="form-control" rows="3">@Model?.Query.Filter</textarea>
+        </div>
+        <div class="col-12 col-md-6">
+            <label for="Query.Sort" class="form-label">Sort:</label>
+            <input id="Sort" type="text" name="Query.Sort" value="@Model?.Query.Sort" class="form-control" />
+        </div>
+        <div class="col-12 col-md-6">
+            <label for="Query.Select" class="form-label">Select:</label>
+            <input id="Select" type="text" name="Query.Select" value="@Model?.Query.Select" class="form-control" />
+        </div>
+        <div class="col-12 col-md-6">
+            <label for="Query.Top" class="form-label">Top:</label>
+            <input id="Top" type="number" name="Query.Top" value="@Model?.Query.Top" class="form-control" />
+        </div>
+        <div class="col-12 text-center mt-4">
+            <button type="submit" class="btn btn-primary px-4">Save</button>
+            <a href="/Home/List" class="btn btn-secondary px-4 ms-3">Cancel</a>
+        </div>
+    </form>
+</div>

@@ -1,6 +1,7 @@
 ﻿@model IEnumerable<FinVizDataService.Models.FinVizDataItem>
 @{
     ViewBag.Title = "Query Execution Result";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <h1>Query Execution Result</h1>
 <table>
@@ -27,4 +28,3 @@
         }
     </tbody>
 </table>
-<a href="/Query/List">Back to List</a>

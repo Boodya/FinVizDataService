@@ -1,0 +1,73 @@
+﻿body {
+    background-color: var(--background-color) !important;
+    color: var(--text-color) !important;
+    font-family: 'Arial', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--header-color);
+}
+
+a {
+    color: var(--link-text-color);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+button {
+    margin: 5px;
+    color: var(--button-text-color);
+    background-color: var(--button-background-color);
+    border: 1px solid var(--button-border-color);
+}
+
+button:hover {
+    background-color: var(--button-hover-background-color);
+}
+
+header {
+    background-color: var(--header-background-color);
+    color: var(--header-primary-color);
+    padding: 0.5rem 0;
+}
+
+header h1 {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+footer {
+    margin-top: 4rem;
+    font-size: 0.875rem;
+}
+
+.login-card {
+    background-color: var(--card-background-color);
+    color: var(--text-color);
+    border: none;
+    border-radius: 10px;
+}
+
+.theme-toggle-btn {
+    font-size: 0.875rem;
+    font-weight: bold;
+    background-color: var(--button-background-color);
+    color: var(--button-text-color);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.theme-toggle-btn:hover {
+    background-color: var(--button-hover-background-color) !important;
+}

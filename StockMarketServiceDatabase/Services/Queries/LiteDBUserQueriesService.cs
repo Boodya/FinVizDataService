@@ -1,7 +1,7 @@
 ﻿using LiteDB;
-using StockMarketAnalyticsService.Models;
+using StockMarketServiceDatabase.Models;
 
-namespace StockMarketAnalyticsService.Services
+namespace StockMarketServiceDatabase.Services.Queries
 {
     public class LiteDBUserQueriesService : IUserQueriesService
     {
@@ -10,7 +10,7 @@ namespace StockMarketAnalyticsService.Services
 
         public LiteDBUserQueriesService(string dbPath)
         {
-            _databasePath = dbPath;
+            _databasePath = dbPath.EndsWith("db") ? dbPath : Path.Combine(dbPath, "UserQueries.db");
         }
 
         public List<UserQueryModel> GetUserQueries(int userId)

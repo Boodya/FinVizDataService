@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FinVizScreener\FinVizScreener.csproj" />
+    <ProjectReference Include="..\StockMarketServiceDatabase\StockMarketServiceDatabase.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,7 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Views\Shared\" />
+    <Folder Include="wwwroot\js\" />
+    <Folder Include="wwwroot\images\" />
   </ItemGroup>
 
 </Project>

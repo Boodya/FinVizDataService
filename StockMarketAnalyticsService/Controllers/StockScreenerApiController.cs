@@ -1,6 +1,6 @@
 ﻿using FinVizDataService.Models;
 using Microsoft.AspNetCore.Mvc;
-using StockMarketAnalyticsService.Models;
+using StockMarketServiceDatabase.Models;
 using StockMarketAnalyticsService.Services;
 
 namespace StockMarketAnalyticsService.Controllers

@@ -1,6 +1,6 @@
-﻿using StockMarketAnalyticsService.Models;
+﻿using StockMarketServiceDatabase.Models;
 
-namespace StockMarketAnalyticsService.Services
+namespace StockMarketServiceDatabase.Services.Queries
 {
     public interface IUserQueriesService
     {

@@ -1,7 +1,8 @@
 ﻿using LiteDB;
-using StockMarketAnalyticsService.Models;
+using StockMarketServiceDatabase.Models;
+using StockMarketServiceDatabase.Services.Queries;
 
-namespace StockMarketAnalyticsService.Services
+namespace StockMarketServiceDatabase.Services
 {
     public class LiteDBUserDataService : IUserDataService
     {
@@ -12,16 +13,17 @@ namespace StockMarketAnalyticsService.Services
 
         public LiteDBUserDataService(string dbPath)
         {
-            _databasePath = dbPath;
+            _databasePath = dbPath.EndsWith("db") ? dbPath : Path.Combine(dbPath,"Users.db");
             _queriesService = new LiteDBUserQueriesService(dbPath);
         }
 
-        public UserModel GetUser(string email)
+        public UserModel? GetUser(string email)
         {
             using (var db = new LiteDatabase(_databasePath))
             {
                 var users = db.GetCollection<UserModel>(_usersCollection);
-                return users.FindOne(u => u.Email == email);
+                return users.Find(u => u.Email == email)
+                    .FirstOrDefault();
             }
         }
 
@@ -45,12 +47,12 @@ namespace StockMarketAnalyticsService.Services
             }
         }
 
-        public UserModel GetUserById(int userId)
+        public UserModel? GetUserById(int userId)
         {
             using (var db = new LiteDatabase(_databasePath))
             {
                 var users = db.GetCollection<UserModel>(_usersCollection);
-                return users.FindById(userId);
+                return users.Find(u => u.Id == userId).FirstOrDefault();
             }
         }
 

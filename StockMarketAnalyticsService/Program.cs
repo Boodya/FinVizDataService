@@ -14,15 +14,16 @@ app.UseSerilogRequestLogging();
 
 ServiceConfigurator.PostConfigure(app.Services);
 
-app.UseSwagger();
-app.UseSwaggerUI();
+app.UseStaticFiles();
 app.UseSession();
-
 app.UseAuthorization();
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.MapControllers();
+app.UseSwagger();
+app.UseSwaggerUI();
 
+app.MapControllers();
 app.Run();

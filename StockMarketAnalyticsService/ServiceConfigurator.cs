@@ -3,6 +3,8 @@ using FinVizScreener.Models;
 using FinVizScreener.Services;
 using Serilog;
 using StockMarketAnalyticsService.Services;
+using StockMarketServiceDatabase.Models;
+using StockMarketServiceDatabase.Services;
 
 namespace StockMarketAnalyticsService
 {
@@ -30,9 +32,7 @@ namespace StockMarketAnalyticsService
             var finVizConfig = new FinVizDataServiceConfigModel();
             builder.Configuration.GetSection("FinVizDataServiceConfigModel").Bind(finVizConfig);
             if (string.IsNullOrEmpty(finVizConfig.DatabaseConnectionString))
-                throw new Exception("Unnable to parse database connection string from config file.");
-            /*builder.Services.AddTransient<IFinvizDBAdapter>(provider =>
-                new LocalLiteDBSeparateFilesAdapter(finVizConfig.DatabaseConnectionString));*/
+                throw new Exception("Unnable to parse finviz service database connection string from config file.");
 
             builder.Services.AddSingleton(provider =>
             {
@@ -40,6 +40,18 @@ namespace StockMarketAnalyticsService
                 return new FinVizScrapperService(finVizConfig, logger);
             });
             builder.Services.AddSingleton<StockScreenerService>();
+
+            var userDataConfig = new UserDataServiceConfigModel();
+            builder.Configuration.GetSection("UserDataServiceConfigModel").Bind(userDataConfig);
+            if (string.IsNullOrEmpty(userDataConfig.DatabaseConnectionString))
+                throw new Exception("Unnable to parse user data service database connection string from config file.");
+            builder.Services.AddSingleton<IUserDataService>(provider =>
+            {
+                if (userDataConfig.DatabaseType == "LiteDB")
+                    return new LiteDBUserDataService(userDataConfig.DatabaseConnectionString);
+                throw new Exception($"Unable to initialize user data service - " +
+                    $"unknown dbtype [{userDataConfig.DatabaseType}]");
+            });
 
             builder.Services.AddDistributedMemoryCache(); // Use in-memory cache for session storage
             builder.Services.AddSession(options =>

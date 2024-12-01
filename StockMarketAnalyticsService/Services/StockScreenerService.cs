@@ -1,6 +1,6 @@
 ﻿using FinVizDataService.Models;
 using FinVizScreener.Services;
-using StockMarketAnalyticsService.Models;
+using StockMarketServiceDatabase.Models;
 using StockMarketAnalyticsService.QueryProcessors;
 
 namespace StockMarketAnalyticsService.Services

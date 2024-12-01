@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.RazorPages;
-using StockMarketAnalyticsService.Models;
+﻿using StockMarketServiceDatabase.Models;
 using System.Globalization;
 using System.Text.RegularExpressions;
 

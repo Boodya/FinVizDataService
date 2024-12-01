@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinVizScreener", "FinVizScr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinVizScreenerTests", "FinVizScreenerTests\FinVizScreenerTests.csproj", "{3F0038B2-C425-4041-809D-E6B55EB6A0FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockMarketAnalyticsConnector", "StockMarketAnalyticsConnector\StockMarketAnalyticsConnector.csproj", "{0513C5AB-762F-4380-8D25-DD61F0FE90D1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockMarketAnalyticsConnector", "StockMarketAnalyticsConnector\StockMarketAnalyticsConnector.csproj", "{0513C5AB-762F-4380-8D25-DD61F0FE90D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockMarketServiceDatabase", "StockMarketServiceDatabase\StockMarketServiceDatabase.csproj", "{D15B3EBB-7A2E-412B-AC05-E1BB9D6FF768}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{0513C5AB-762F-4380-8D25-DD61F0FE90D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0513C5AB-762F-4380-8D25-DD61F0FE90D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0513C5AB-762F-4380-8D25-DD61F0FE90D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D15B3EBB-7A2E-412B-AC05-E1BB9D6FF768}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D15B3EBB-7A2E-412B-AC05-E1BB9D6FF768}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D15B3EBB-7A2E-412B-AC05-E1BB9D6FF768}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D15B3EBB-7A2E-412B-AC05-E1BB9D6FF768}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
