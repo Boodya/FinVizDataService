@@ -22,7 +22,11 @@
                 <div class="col-12 col-md-6 col-lg-4 mb-4">
                     <div class="card shadow-sm h-100">
                         <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0">@item.Ticker</h5>
+                            <h5 class="mb-0">
+                                <a href="/home/instrument?ticker=@item.Ticker">
+                                    @item.Ticker
+                                </a>
+                            </h5>
                             <small>@item.Date.ToString("yyyy-MM-dd")</small>
                         </div>
                         <div class="card-body">

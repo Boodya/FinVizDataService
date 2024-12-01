@@ -2,7 +2,6 @@
 using StockMarketAnalyticsService.Services;
 using StockMarketServiceDatabase.Models;
 using StockMarketServiceDatabase.Services;
-using System.Reflection;
 
 namespace StockMarketAnalyticsService.Controllers
 {
@@ -64,12 +63,12 @@ namespace StockMarketAnalyticsService.Controllers
                 .GetUserQueries(userId.Value));
         }
 
-        public ActionResult Edit(int Id)
+        public ActionResult Edit(int queryId)
         {
             var isValid = ModelState.IsValid;
             if (NeedLogin())
                 return RedirectToAction("Login");
-            if (Id == 0)
+            if (queryId == 0)
             {
                 var nQuery = new UserQueryModel()
                 {
@@ -79,7 +78,7 @@ namespace StockMarketAnalyticsService.Controllers
                 return View(nQuery);
             }
             return View(_userDataService.
-                QueriesService.GetQuery(Id));
+                QueriesService.GetQuery(queryId));
         }
 
         [HttpPost]
@@ -114,6 +113,19 @@ namespace StockMarketAnalyticsService.Controllers
                 return View("List");
             var result = _stockScreenerService.QueryData(query);
             return View("QueryResults", result);
+        }
+
+        public ActionResult Instrument(string ticker)
+        {
+            if (NeedLogin())
+                return RedirectToAction("Login");
+            var instruments = _stockScreenerService.QueryData(new()
+            {
+                Filter = $"[ticker] = {ticker}"
+            });
+            if (instruments == null)
+                return View("Index");
+            return View(instruments.FirstOrDefault());
         }
 
         private bool NeedLogin() =>

@@ -74,12 +74,15 @@ namespace StockMarketAnalyticsService.QueryProcessors
 
                             if (matchingEntry.Value != null)
                             {
-                                if (double.TryParse(matchingEntry.Value.Replace("%", ""), NumberStyles.Any, CultureInfo.InvariantCulture, out var numericValue))
+                                var value = matchingEntry.Value;
+                                if (value == "-")
+                                    value = "0";
+                                if (double.TryParse(value.Replace("%", ""), NumberStyles.Any, CultureInfo.InvariantCulture, out var numericValue))
                                 {
                                     return numericValue;
                                 }
 
-                                return matchingEntry.Value;
+                                return value;
                             }
                         }
                     }
