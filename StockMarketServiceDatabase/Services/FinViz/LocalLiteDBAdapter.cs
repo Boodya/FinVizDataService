@@ -1,7 +1,7 @@
-﻿using FinVizDataService.Models;
+﻿using StockMarketServiceDatabase.Models.FinViz;
 using LiteDB;
 
-namespace FinVizScreener.DB
+namespace StockMarketServiceDatabase.Services.FinViz
 {
     public class LocalLiteDBAdapter : IFinvizDBAdapter
     {

@@ -1,10 +1,9 @@
-﻿using FinVizScreener.DB;
-using FinVizScreener.Models;
+﻿using StockMarketServiceDatabase.Models.FinViz;
 using FinVizScreener.Services;
 using Serilog;
 using StockMarketAnalyticsService.Services;
-using StockMarketServiceDatabase.Models;
-using StockMarketServiceDatabase.Services;
+using StockMarketServiceDatabase.Models.User;
+using StockMarketServiceDatabase.Services.User;
 
 namespace StockMarketAnalyticsService
 {

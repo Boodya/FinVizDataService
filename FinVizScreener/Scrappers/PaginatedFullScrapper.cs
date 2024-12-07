@@ -1,4 +1,4 @@
-﻿using FinVizDataService.Models;
+﻿using StockMarketServiceDatabase.Models.FinViz;
 using FinVizScreener.Scrapers;
 
 namespace FinVizScreener.Scrappers

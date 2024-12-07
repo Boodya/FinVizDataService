@@ -1,8 +1,8 @@
-﻿using StockMarketServiceDatabase.Models;
+﻿using StockMarketServiceDatabase.Models.Query;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace StockMarketAnalyticsService.QueryProcessors
+namespace StockMarketDataProcessing.Processors.FilterQuery
 {
     public class MapBasedLinqQueryProcessor<T> where T : new()
     {
@@ -15,7 +15,7 @@ namespace StockMarketAnalyticsService.QueryProcessors
             _filterProcessor = new MapBasedFilterProcessor<T>(mapPropName);
         }
 
-        public List<T> QueryData(List<T> data, LinqProcessorRequestModel request)
+        public List<T> QueryData(List<T> data, StockDataQueryRequestModel request)
         {
             if (!string.IsNullOrEmpty(request.Filter))
             {

@@ -1,8 +1,8 @@
-﻿using StockMarketServiceDatabase.Models;
+﻿using StockMarketServiceDatabase.Models.Query;
 
-namespace StockMarketServiceDatabase.Services.Queries
+namespace StockMarketServiceDatabase.Services.Query
 {
-    public interface IUserQueriesService
+    public interface IUserQueriesDataService
     {
         UserQueryModel GetQuery(int Id);
         List<UserQueryModel> GetUserQueries(int userId);

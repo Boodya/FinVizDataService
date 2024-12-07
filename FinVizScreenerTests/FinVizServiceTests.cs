@@ -1,4 +1,4 @@
-﻿using FinVizDataService.Models;
+﻿using StockMarketServiceDatabase.Models.FinViz;
 using FinVizScreener.Services;
 
 namespace FinVizScreenerTests
@@ -8,7 +8,7 @@ namespace FinVizScreenerTests
         [Fact]
         public async void OnServiceDataDownloadedTest()
         {
-            var service = new FinVizScrapperService(new FinVizScreener.Models.FinVizDataServiceConfigModel()
+            var service = new FinVizScrapperService(new FinVizDataServiceConfigModel()
             {
                 EndpointUrl = TestsConfig.ScrappingUrl,
                 DatabaseConnectionString = TestsConfig.LiteDBConnectionString,

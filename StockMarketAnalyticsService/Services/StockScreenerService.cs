@@ -1,7 +1,7 @@
-﻿using FinVizDataService.Models;
+﻿using StockMarketServiceDatabase.Models.FinViz;
 using FinVizScreener.Services;
-using StockMarketServiceDatabase.Models;
-using StockMarketAnalyticsService.QueryProcessors;
+using StockMarketDataProcessing.Processors.FilterQuery;
+using StockMarketServiceDatabase.Models.Query;
 
 namespace StockMarketAnalyticsService.Services
 {
@@ -16,7 +16,7 @@ namespace StockMarketAnalyticsService.Services
             _queryProcessor = new MapBasedLinqQueryProcessor<FinVizDataItem>("ItemProperties");
         }
 
-        public List<FinVizDataItem> QueryData(LinqProcessorRequestModel query)
+        public List<FinVizDataItem> QueryData(StockDataQueryRequestModel query)
         {
             return _queryProcessor.QueryData(_dataService.Data, query);
         }
@@ -32,7 +32,7 @@ namespace StockMarketAnalyticsService.Services
             return tickers.Distinct().OrderBy(ticker => ticker).ToList();
         }
 
-        public PaginatedQueryResponseModel<FinVizDataItem> FetchPaginatedData(int page, int pageSize, LinqProcessorRequestModel? query = null)
+        public PaginatedQueryResponseModel<FinVizDataItem> FetchPaginatedData(int page, int pageSize, StockDataQueryRequestModel? query = null)
         {
             if (page <= 0 || pageSize <= 0)
                 return default;

@@ -1,6 +1,6 @@
-﻿using FinVizDataService.Models;
+﻿using StockMarketServiceDatabase.Models.FinViz;
 
-namespace FinVizScreener.DB
+namespace StockMarketServiceDatabase.Services.FinViz
 {
     public interface IFinvizDBAdapter
     {

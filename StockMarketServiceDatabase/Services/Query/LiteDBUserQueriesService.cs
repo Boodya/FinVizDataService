@@ -1,9 +1,9 @@
 ﻿using LiteDB;
-using StockMarketServiceDatabase.Models;
+using StockMarketServiceDatabase.Models.Query;
 
-namespace StockMarketServiceDatabase.Services.Queries
+namespace StockMarketServiceDatabase.Services.Query
 {
-    public class LiteDBUserQueriesService : IUserQueriesService
+    public class LiteDBUserQueriesService : IUserQueriesDataService
     {
         private string _databasePath;
         private const string _queriesCollection = "Queries";

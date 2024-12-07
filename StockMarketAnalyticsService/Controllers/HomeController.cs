@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using StockMarketAnalyticsService.Services;
-using StockMarketServiceDatabase.Models;
-using StockMarketServiceDatabase.Services;
+using StockMarketServiceDatabase.Models.Query;
+using StockMarketServiceDatabase.Models.User;
+using StockMarketServiceDatabase.Services.User;
 
 namespace StockMarketAnalyticsService.Controllers
 {

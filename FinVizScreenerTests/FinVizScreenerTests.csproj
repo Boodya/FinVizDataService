@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FinVizScreener\FinVizScreener.csproj" />
+    <ProjectReference Include="..\StockMarketServiceDatabase\StockMarketServiceDatabase.csproj" />
   </ItemGroup>
 
   <ItemGroup>

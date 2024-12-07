@@ -1,7 +1,7 @@
-﻿using StockMarketServiceDatabase.Models;
-using StockMarketServiceDatabase.Services.Queries;
+﻿using StockMarketServiceDatabase.Models.User;
+using StockMarketServiceDatabase.Services.Query;
 
-namespace StockMarketServiceDatabase.Services
+namespace StockMarketServiceDatabase.Services.User
 {
     public interface IUserDataService
     {
@@ -9,6 +9,6 @@ namespace StockMarketServiceDatabase.Services
         UserModel? GetUserById(int userId);
         void DeleteUser(int userId);
         int AddOrUpdateUser(UserModel user);
-        IUserQueriesService QueriesService { get; }  
+        IUserQueriesDataService QueriesService { get; }
     }
 }

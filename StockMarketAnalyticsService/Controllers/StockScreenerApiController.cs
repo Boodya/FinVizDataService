@@ -1,7 +1,7 @@
-﻿using FinVizDataService.Models;
+﻿using StockMarketServiceDatabase.Models.FinViz;
 using Microsoft.AspNetCore.Mvc;
-using StockMarketServiceDatabase.Models;
 using StockMarketAnalyticsService.Services;
+using StockMarketServiceDatabase.Models.Query;
 
 namespace StockMarketAnalyticsService.Controllers
 {
@@ -26,7 +26,7 @@ namespace StockMarketAnalyticsService.Controllers
 
         [Route("Query")]
         [HttpPost]
-        public ActionResult<List<FinVizDataItem>> Query(LinqProcessorRequestModel query)
+        public ActionResult<List<FinVizDataItem>> Query(StockDataQueryRequestModel query)
         {
             try
             {
@@ -40,7 +40,7 @@ namespace StockMarketAnalyticsService.Controllers
 
         [Route("PaginatedQuery")]
         [HttpPost]
-        public ActionResult<PaginatedQueryResponseModel<FinVizDataItem>> FetchPaginatedData(int page = 1, int pageSize = 10, LinqProcessorRequestModel? query = null)
+        public ActionResult<PaginatedQueryResponseModel<FinVizDataItem>> FetchPaginatedData(int page = 1, int pageSize = 10, StockDataQueryRequestModel? query = null)
         {
             try
             {

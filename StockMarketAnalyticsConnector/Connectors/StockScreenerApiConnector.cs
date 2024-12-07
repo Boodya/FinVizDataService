@@ -1,4 +1,4 @@
-﻿using FinVizDataService.Models;
+﻿using StockMarketServiceDatabase.Models.FinViz;
 using System.Net.Http.Json;
 
 namespace StockMarketAnalyticsConnector.Connectors

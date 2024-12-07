@@ -1,4 +1,4 @@
-﻿namespace FinVizDataService.Models
+﻿namespace StockMarketServiceDatabase.Models.FinViz
 {
     public class FinVizDataItem
     {

@@ -1,5 +1,5 @@
-﻿using FinVizDataService.Models;
-using FinVizScreener.DB;
+﻿using StockMarketServiceDatabase.Models.FinViz;
+using StockMarketServiceDatabase.Services.FinViz;
 using FinVizScreener.Scrappers;
 
 namespace FinVizScreenerTests

@@ -1,4 +1,4 @@
-﻿namespace FinVizScreener.DB
+﻿namespace StockMarketServiceDatabase.Services.FinViz
 {
     public static class DBAdapterFactory
     {
@@ -7,7 +7,6 @@
             switch (dbAdapterType)
             {
                 case "LiteDB": return new LocalLiteDBAdapter(dbConnectionString);
-                case "LocalJSON": return new LocalJSONDBAdapter(dbConnectionString);
                 case "LiteDBSeparate": return new LocalLiteDBSeparateFilesAdapter(dbConnectionString);
                 default: return new LocalLiteDBAdapter(dbConnectionString);
             }

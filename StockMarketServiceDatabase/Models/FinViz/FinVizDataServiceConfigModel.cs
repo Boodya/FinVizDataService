@@ -1,7 +1,4 @@
-﻿using FinVizScreener.DB;
-using System.Text.Json.Serialization;
-
-namespace FinVizScreener.Models
+﻿namespace StockMarketServiceDatabase.Models.FinViz
 {
     public class FinVizDataServiceConfigModel
     {

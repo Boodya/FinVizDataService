@@ -1,6 +1,6 @@
-﻿namespace StockMarketServiceDatabase.Models
+﻿namespace StockMarketServiceDatabase.Models.Query
 {
-    public class UserQueryModel : LinqProcessorRequestModel
+    public class UserQueryModel : StockDataQueryRequestModel
     {
         public int Id { get; set; }
         public int UserId { get; set; }

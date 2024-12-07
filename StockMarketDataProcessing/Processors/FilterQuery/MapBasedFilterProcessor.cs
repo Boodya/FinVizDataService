@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace StockMarketAnalyticsService.QueryProcessors
+namespace StockMarketDataProcessing.Processors.FilterQuery
 {
     public class MapBasedFilterProcessor<T>
     {

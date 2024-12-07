@@ -1,6 +1,6 @@
-﻿namespace StockMarketServiceDatabase.Models
+﻿namespace StockMarketServiceDatabase.Models.Query
 {
-    public class LinqProcessorRequestModel
+    public class StockDataQueryRequestModel
     {
         public string? Filter { get; set; }
         public string? Sort { get; set; }

@@ -1,19 +1,19 @@
 ﻿using LiteDB;
-using StockMarketServiceDatabase.Models;
-using StockMarketServiceDatabase.Services.Queries;
+using StockMarketServiceDatabase.Models.User;
+using StockMarketServiceDatabase.Services.Query;
 
-namespace StockMarketServiceDatabase.Services
+namespace StockMarketServiceDatabase.Services.User
 {
     public class LiteDBUserDataService : IUserDataService
     {
         private string _databasePath;
         private const string _usersCollection = "Users";
-        private IUserQueriesService _queriesService;
-        public IUserQueriesService QueriesService => _queriesService;
+        private IUserQueriesDataService _queriesService;
+        public IUserQueriesDataService QueriesService => _queriesService;
 
         public LiteDBUserDataService(string dbPath)
         {
-            _databasePath = dbPath.EndsWith("db") ? dbPath : Path.Combine(dbPath,"Users.db");
+            _databasePath = dbPath.EndsWith("db") ? dbPath : Path.Combine(dbPath, "Users.db");
             _queriesService = new LiteDBUserQueriesService(dbPath);
         }
 

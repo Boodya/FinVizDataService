@@ -1,7 +1,6 @@
-﻿using FinVizDataService.Models;
-using FinVizScreener.DB;
+﻿using StockMarketServiceDatabase.Models.FinViz;
+using StockMarketServiceDatabase.Services.FinViz;
 using FinVizScreener.Helpers;
-using FinVizScreener.Models;
 using FinVizScreener.Scrappers;
 using Microsoft.Extensions.Logging;
 
