@@ -2,6 +2,7 @@
 using FinVizScreener.Services;
 using StockMarketDataProcessing.Processors.FilterQuery;
 using StockMarketServiceDatabase.Models.Query;
+using System.Linq;
 
 namespace StockMarketAnalyticsService.Services
 {
@@ -16,10 +17,47 @@ namespace StockMarketAnalyticsService.Services
             _queryProcessor = new MapBasedLinqQueryProcessor<FinVizDataItem>("ItemProperties");
         }
 
+        public FinVizDataItem? GetInstrumentByTicker(string ticker, bool isIgnoreEmptyProperties=false)
+        {
+            var instrument = _queryProcessor.QueryData(_dataService.Data, new()
+            {
+                Filter = $"[ticker] = {ticker}"
+            }).FirstOrDefault();
+            if(isIgnoreEmptyProperties && instrument != null)
+            {
+                var propMap = new Dictionary<string, string>();
+                instrument.ItemProperties = instrument.ItemProperties.Where(p => !string
+                    .IsNullOrEmpty(p.Value) && !p.Value.Contains("-")).ToDictionary();
+            }
+            return instrument;
+        }
+
         public List<FinVizDataItem> QueryData(StockDataQueryRequestModel query)
         {
             return _queryProcessor.QueryData(_dataService.Data, query);
         }
+
+        public Dictionary<string, string> SearchTickerCompanyNameMap(string searchTerm = "")
+        {
+            var dataFetch = _dataService.Data as IEnumerable<FinVizDataItem>;
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                dataFetch = dataFetch.Where(d =>
+                    d.Ticker.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    d.ItemProperties.Any(prop =>
+                        prop.Key.Equals("Company", StringComparison.OrdinalIgnoreCase) &&
+                        prop.Value.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                );
+            }
+
+            return dataFetch.ToDictionary(
+                d => d.Ticker,
+                d => d.ItemProperties.FirstOrDefault(prop =>
+                    prop.Key.Equals("Company", StringComparison.OrdinalIgnoreCase)).Value ?? string.Empty
+            );
+        }
+
 
         public List<string> GetTickerList(string searchTerm = "")
         {

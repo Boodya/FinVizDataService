@@ -6,38 +6,4 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-12 col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    <h4 class="mb-0">@Model.Ticker</h4>
-                    <h2><a href="https://finviz.com/quote.ashx?t=@Model.Ticker&p=m">FinViz</a></h2>
-                    <small>Last Update Date: @Model.Date.ToString("yyyy-MM-dd")</small>
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title">Properties</h5>
-                    <ul class="list-group">
-                        @foreach (var kvp in Model.ItemProperties)
-                        {
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span><strong>@kvp.Key:</strong></span>
-                                <span>@kvp.Value</span>
-                            </li>
-                        }
-                    </ul>
-                </div>
-                <div class="card-footer text-muted">
-                    <div class="row">
-                        <div class="col text-start">
-                            <small>Version: @Model.Version</small>
-                        </div>
-                        <div class="col text-end">
-                            <small>Id: @Model.Id</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@Html.Partial("_InstrumentDetailsPartial", Model)

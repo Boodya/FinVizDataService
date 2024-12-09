@@ -1,7 +1,18 @@
-﻿body {
+﻿* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scroll-primary-color) var(--scroll-background-color);
+}
+
+body {
     background-color: var(--background-color) !important;
     color: var(--text-color) !important;
     font-family: 'Arial', sans-serif;
+}
+
+header {
+    background-color: var(--header-background-color) !important;
+    color: var(--header-primary-color);
+    padding: 0.5rem 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -26,12 +37,6 @@ button {
 
 button:hover {
     background-color: var(--button-hover-background-color);
-}
-
-header {
-    background-color: var(--header-background-color) !important;
-    color: var(--header-primary-color);
-    padding: 0.5rem 0;
 }
 
 .bg-primary {
@@ -75,3 +80,35 @@ footer {
 .theme-toggle-btn:hover {
     background-color: var(--button-hover-background-color) !important;
 }
+
+/* Search box container */
+.search-box {
+    position: relative; /* Ensure child elements are positioned relative to the search box */
+    width: 100%; /* Adjust width as needed */
+}
+
+/* Ticker list dropdown */
+.ticker-list {
+    position: absolute;
+    top: calc(100% + 5px); /* Place the list just below the input with some spacing */
+    left: 0;
+    right: 0;
+    max-height: 200px; /* Limit the height */
+    overflow-y: auto; /* Enable vertical scroll bar */
+    z-index: 1000; /* Ensure it appears above other elements */
+    background: #fff; /* White background for contrast */
+    border: 1px solid #ccc; /* Add a border for separation */
+    border-radius: 5px; /* Rounded corners */
+    padding: 0;
+    margin: 0;
+    display: none; /* Initially hidden */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for depth */
+}
+
+.ticker-list .list-group-item {
+    cursor: pointer;
+}
+
+    .ticker-list .list-group-item:hover {
+        background-color: var(--header-background-color);
+    }

@@ -16,13 +16,16 @@ namespace StockMarketAnalyticsService.Controllers
             _stockScreenerService = stockScreenerService;
         }
 
-        [Route("GetSupportedTickers")]
-        [HttpPost]
-        public ActionResult<List<string>> GetTickerList()
-        {
-            return Ok(_stockScreenerService
-                .GetTickerList());
-        }
+        [Route("GetTickers")]
+        [HttpGet]
+        public ActionResult<List<string>> GetTickerList(string matchingPattern = "") =>
+            _stockScreenerService
+                .GetTickerList(matchingPattern);
+
+        [Route("SearchTickerCompanyList")]
+        [HttpGet]
+        public ActionResult<Dictionary<string, string>> SearchTickerCompanyList(string matchingPattern = "") =>
+            _stockScreenerService.SearchTickerCompanyNameMap(matchingPattern);//.Take(100).ToDictionary();
 
         [Route("Query")]
         [HttpPost]

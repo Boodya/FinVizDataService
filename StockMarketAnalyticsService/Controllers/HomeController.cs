@@ -3,6 +3,7 @@ using StockMarketAnalyticsService.Services;
 using StockMarketServiceDatabase.Models.Query;
 using StockMarketServiceDatabase.Models.User;
 using StockMarketServiceDatabase.Services.User;
+using System.Reflection;
 
 namespace StockMarketAnalyticsService.Controllers
 {
@@ -116,17 +117,18 @@ namespace StockMarketAnalyticsService.Controllers
             return View("QueryResults", result);
         }
 
-        public ActionResult Instrument(string ticker)
+        public ActionResult Instrument(string ticker, bool isIgnoreEmptyProps=false)
         {
             if (NeedLogin())
                 return RedirectToAction("Login");
-            var instruments = _stockScreenerService.QueryData(new()
-            {
-                Filter = $"[ticker] = {ticker}"
-            });
-            if (instruments == null)
+            var instrument = _stockScreenerService
+                .GetInstrumentByTicker(ticker, isIgnoreEmptyProps);
+            if (instrument == null)
                 return View("Index");
-            return View(instruments.FirstOrDefault());
+
+            return Request.Headers["X-Requested-With"] == "XMLHttpRequest" ?
+                PartialView("_InstrumentDetailsPartial", instrument) :
+                View("Instrument", instrument);
         }
 
         private bool NeedLogin() =>

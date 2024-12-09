@@ -7,9 +7,11 @@
     --button-hover-background-color: #00008b;
     --button-text-color: #ffffff;
     --button-border-color: #f8f9fa;
-    --header-background-color: #0a6bd2;
+    --header-background-color: #418fe1;
     --header-primary-color: #fff;
     --link-text-color: #0d6efd;
     --bs-body-bg: #ffffff;
     --bs-body-color: #000000;
+    --scroll-background-color: #f8f9fa;
+    --scroll-primary-color: #418fe1;
 }

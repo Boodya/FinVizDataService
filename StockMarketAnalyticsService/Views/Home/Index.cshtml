@@ -2,3 +2,85 @@
     ViewBag.Title = "Home";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
+<div class="container mt-5">
+    <h1 class="text-center">Stock Ticker Search</h1>
+    <div class="search-box mt-4 position-relative">
+        <input type="text" id="tickerSearch" class="form-control" placeholder="" />
+        <ul id="tickerList" class="list-group ticker-list"></ul>
+    </div>
+    <div id="instrumentDetails" class="mt-5"></div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            const searchInput = $("#tickerSearch");
+            const tickerList = $("#tickerList");
+            const instrumentDetails = $("#instrumentDetails");
+
+            let typingTimer;
+            const typingDelay = 300;
+
+            function fetchTickers(query) {
+                if (query.length > 0) {
+                    $.ajax({
+                        url: "/StockScreenerApi/SearchTickerCompanyList?matchingPattern=" + query,
+                        type: "GET",
+                        contentType: "application/json",
+                        success: function (data) {
+                            tickerList.empty().show();
+                            if (data && Object.keys(data).length > 0) {
+                                Object.entries(data).forEach(([key, value]) => {
+                                    tickerList.append(
+                                        `<li class="list-group-item ticker-item" data-ticker="${key}">${value} (${key})</li>`
+                                    );
+                                });
+                            }
+                        },
+                        error: function () {
+                            tickerList.empty().append('<li class="list-group-item text-danger">Error fetching tickers</li>').show();
+                        }
+                    });
+                } else {
+                    tickerList.empty().hide();
+                }
+            }
+
+            searchInput.on("input", function () {
+                const query = $(this).val();
+
+                clearTimeout(typingTimer);
+
+                instrumentDetails.hide();
+
+                typingTimer = setTimeout(function () {
+                    fetchTickers(query);
+                }, typingDelay);
+            });
+
+            tickerList.on("click", ".ticker-item", function () {
+                const selectedTicker = $(this).data("ticker");
+                searchInput.val(selectedTicker);
+                tickerList.empty().hide();
+
+                $.ajax({
+                    url: `/Home/Instrument?ticker=${selectedTicker}&isIgnoreEmptyProps=true`,
+                    type: "GET",
+                    success: function (html) {
+                        instrumentDetails.html(html).show();
+                    },
+                    error: function () {
+                        instrumentDetails.html('<div class="text-danger">Error loading instrument details</div>').show();
+                    }
+                });
+            });
+
+            $(document).on("click", function (e) {
+                if (!$(e.target).closest(".search-box").length) {
+                    tickerList.hide();
+                }
+            });
+        });
+    </script>
+}
