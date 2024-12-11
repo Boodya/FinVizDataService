@@ -14,8 +14,8 @@ namespace StockMarketDataProcessingTests
         public void Setup()
         {
             _processor = new FinVizDataIncrementalFilterProcessor(
-                new LocalLiteDBSeparateFilesAdapter("D:\\Temp\\FinVizDataServiceDB\\FinVizData\\data"),
-                new LiteDBUserQueriesService("D:\\Temp\\FinVizDataServiceDB\\FinVizData\\userData"),
+                new LocalLiteDBSeparateFilesAdapter("E:\\LiteDB\\StockMarketAnalyticsService\\FinVizData"),
+                new LiteDBUserQueriesService("E:\\LiteDB\\StockMarketAnalyticsService\\UserData"),
                 new MapBasedLinqQueryProcessor<FinVizDataItem>("ItemProperties"));
         }
 
