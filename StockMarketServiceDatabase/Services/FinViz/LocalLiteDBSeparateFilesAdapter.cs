@@ -1,28 +1,37 @@
 ﻿using StockMarketServiceDatabase.Models.FinViz;
 using LiteDB;
+using StockMarketServiceDatabase.Models.Query;
+using System.Text.RegularExpressions;
 
 namespace StockMarketServiceDatabase.Services.FinViz
 {
     public class LocalLiteDBSeparateFilesAdapter : IFinvizDBAdapter
     {
         private readonly string _dbPath;
-        private const string CollectionName = "FinVizData";
+        private const string _collectionName = "FinVizData";
 
         public LocalLiteDBSeparateFilesAdapter(string dbPath)
         {
             _dbPath = dbPath;
         }
 
-        public IEnumerable<FinVizDataItem> GetLatestData()
+        public List<int> GetAllDataRevisions() =>
+            GetAllDBFileNames()
+                .Select(ExtractVersionFromFileName)
+                    .ToList();
+
+        public IEnumerable<FinVizDataItem> GetRevision(int version = 0)
         {
-            var version = GetLastDBFileVersion();
+            if(version == 0)
+                version = GetLastDBFileVersion();
+
             var dbFilePath = GetDBFilePathByVersion(version);
             if (string.IsNullOrEmpty(dbFilePath))
                 return new List<FinVizDataItem>();
 
             using (var db = new LiteDatabase(dbFilePath))
             {
-                var collection = db.GetCollection<FinVizDataItem>(CollectionName);
+                var collection = db.GetCollection<FinVizDataItem>(_collectionName);
                 return collection.FindAll().ToList();
             }
         }
@@ -36,7 +45,7 @@ namespace StockMarketServiceDatabase.Services.FinViz
             var dbFileName = CreateNewDBFilePath(lastVersion);
             using (var db = new LiteDatabase(dbFileName))
             {
-                var collection = db.GetCollection<FinVizDataItem>(CollectionName);
+                var collection = db.GetCollection<FinVizDataItem>(_collectionName);
                 collection.EnsureIndex(item => item.Id, unique: true);
                 collection.EnsureIndex(item => item.Version);
                 int newId = 1;
@@ -50,6 +59,43 @@ namespace StockMarketServiceDatabase.Services.FinViz
                 collection.InsertBulk(data);
             }
             return data.Count();
+        }
+
+        public Dictionary<string, List<FinVizDataItem>> GetTickerMappedData(int version = 0)
+        {
+            var allVersions = new List<int>();
+
+            if (version != 0)
+                allVersions.Add(version);
+            else allVersions = GetAllDataRevisions();
+
+            Dictionary<string, List<FinVizDataItem>> aggregatedMap = new();
+
+            foreach (var versionNum in allVersions)
+            {
+                var map = GetVersionBasedTickerMappedData(versionNum);
+                foreach (var item in map)
+                {
+                    if (!aggregatedMap.ContainsKey(item.Key))
+                        aggregatedMap.Add(item.Key, 
+                            new List<FinVizDataItem>() { item.Value });
+                    else aggregatedMap[item.Key].Add(item.Value);
+                }
+            }
+
+            return aggregatedMap;
+        }
+
+        private Dictionary<string, FinVizDataItem> GetVersionBasedTickerMappedData(int version)
+        {
+            var dbFileName = GetDBFilePathByVersion(version);
+            Dictionary<string, FinVizDataItem> result = new();
+            using (var db = new LiteDatabase(dbFileName))
+            {
+                var collection = db.GetCollection<FinVizDataItem>(_collectionName);
+                result = collection.FindAll().ToDictionary(item => item.Ticker);
+            }
+            return result;
         }
 
         private string GetDBFilePathByVersion(int version)
@@ -76,8 +122,10 @@ namespace StockMarketServiceDatabase.Services.FinViz
             return versionedFiles?.FilePath ?? string.Empty;
         }
 
-        private int ExtractVersionFromFileName(string filePath)
+        private int ExtractVersionFromFileName(string? filePath)
         {
+            if(filePath == null)
+                return 0;
             var fileName = Path.GetFileNameWithoutExtension(filePath);
             var versionPart = fileName.Split('_').FirstOrDefault(part => part.StartsWith("v", StringComparison.OrdinalIgnoreCase));
             return int.TryParse(versionPart?.TrimStart('v'), out int version) ? version : 0;
@@ -95,27 +143,38 @@ namespace StockMarketServiceDatabase.Services.FinViz
             return newFilePath;
         }
 
-        private int GetLastDBFileVersion()
+        private List<string> GetAllDBFileNames()
         {
+            List<string> result = new();
             if (!Directory.Exists(_dbPath))
-                return 0;
+                return result;
 
             var files = Directory.GetFiles(_dbPath);
             if (files.Length == 0)
-                return 0;
+                return result;
 
-            var versions = files
-                .Select(filePath =>
+            result = files
+                .Where(f => !f.Contains("-log") &&
+                    f.Contains(".db"))
+                .OrderBy(filePath =>
                 {
                     var fileName = Path.GetFileNameWithoutExtension(filePath);
-                    if (fileName.Contains("-log"))
-                        return 0;
-                    return ExtractVersionFromFileName(fileName);
+                    var match = Regex.Match(fileName, @"v(\d+)_");
+                    return match.Success ? int.Parse(match.Groups[1].Value) : int.MaxValue;
                 })
-                .Where(version => version > 0)
                 .ToList();
 
-            return versions.Any() ? versions.Max() : 0;
+            return result;
+        }
+
+        private int GetLastDBFileVersion() =>
+            ExtractVersionFromFileName(
+                GetAllDBFileNames()
+                    .LastOrDefault());
+
+        Dictionary<string, FinVizDataItem> IFinvizDBAdapter.GetTickerMappedData(int version)
+        {
+            throw new NotImplementedException();
         }
     }
 }

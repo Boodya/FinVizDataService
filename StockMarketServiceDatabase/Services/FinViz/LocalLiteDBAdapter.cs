@@ -111,5 +111,20 @@ namespace StockMarketServiceDatabase.Services.FinViz
             }
             return false;
         }
+
+        public List<int> GetAllDataRevisions()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Dictionary<string, FinVizDataItem> GetTickerMappedData(int version = 0)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<FinVizDataItem> GetRevision(int version = 0)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

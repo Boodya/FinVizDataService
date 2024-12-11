@@ -22,7 +22,7 @@ namespace FinVizScreenerTests
             Assert.NotNull(originalItem);
             dbAdapter.SaveData(data);
 
-            var loadedData = dbAdapter.GetLatestData();
+            var loadedData = dbAdapter.GetRevision();
             var dbProcessedItem = loadedData
                 .Where(d => d.Ticker == originalItem.Ticker)
                 .FirstOrDefault();
@@ -39,7 +39,7 @@ namespace FinVizScreenerTests
         {
             var dbAdapter = DBAdapterFactory.Resolve("LiteDBSeparate",
                 TestsConfig.LiteDBConnectionString);
-            var loadedData = dbAdapter.GetLatestData();
+            var loadedData = dbAdapter.GetRevision();
             var result = dbAdapter.SaveData(loadedData);
             Assert.Equal(0, result);
         }
@@ -49,7 +49,7 @@ namespace FinVizScreenerTests
         {
             var dbAdapter = DBAdapterFactory.Resolve("LiteDB",
                 TestsConfig.LiteDBConnectionString);
-            var loadedData = dbAdapter.GetLatestData();
+            var loadedData = dbAdapter.GetRevision();
             var itemToOperate = loadedData.FirstOrDefault();
             Assert.NotNull(itemToOperate);
 
@@ -61,7 +61,7 @@ namespace FinVizScreenerTests
             var beforeTicker = itemToOperate.Ticker;
             var savedCount = dbAdapter.SaveData(new List<FinVizDataItem>() { itemToOperate });
             Assert.Equal(1, savedCount);
-            var afterItems = dbAdapter.GetLatestData();
+            var afterItems = dbAdapter.GetRevision();
             var afterItem = afterItems.Where(i => i.Ticker == beforeTicker).FirstOrDefault();
             Assert.NotNull(afterItem);
             Assert.True(beforeVersion != afterItem.Version);

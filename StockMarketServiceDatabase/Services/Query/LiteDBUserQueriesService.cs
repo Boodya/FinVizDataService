@@ -58,5 +58,41 @@ namespace StockMarketServiceDatabase.Services.Query
                     .FirstOrDefault();
             }
         }
+
+        public void IterateQueries(Action<IEnumerable<UserQueryModel>> batchProcessing, int batchSize=100)
+        {
+            if (batchProcessing == null)
+            {
+                throw new ArgumentNullException(nameof(batchProcessing));
+            }
+
+            if (batchSize <= 0)
+            {
+                throw new ArgumentException("Batch size must be greater than zero.", nameof(batchSize));
+            }
+
+            using (var db = new LiteDatabase(_databasePath))
+            {
+                var queries = db.GetCollection<UserQueryModel>(_queriesCollection);
+                var skip = 0;
+                IEnumerable<UserQueryModel> batch;
+
+                do
+                {
+                    batch = queries.FindAll()
+                        .Skip(skip)
+                        .Take(batchSize)
+                        .ToList();
+
+                    if (batch.Any())
+                    {
+                        batchProcessing(batch);
+                    }
+
+                    skip += batchSize;
+                }
+                while (batch.Count() == batchSize);
+            }
+        }
     }
 }

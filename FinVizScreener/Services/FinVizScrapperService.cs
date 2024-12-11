@@ -25,7 +25,7 @@ namespace FinVizScreener.Services
             _cfg = cfg;
             _db = DBAdapterFactory.Resolve(_cfg.DatabaseType, _cfg.DatabaseConnectionString);
             Data = _db
-                .GetLatestData()
+                .GetRevision()
                 .ToList();
             _scrapperCancelToken = new CancellationToken();
             //_ = StartPeriodicScrapingAsync(_scrapperCancelToken);

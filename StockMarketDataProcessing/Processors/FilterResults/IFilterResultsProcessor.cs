@@ -5,6 +5,7 @@ namespace StockMarketDataProcessing.Processors.FilterResults
 {
     public interface IFilterResultsProcessor
     {
-        public FilterCalculationModel Calculate(StockDataQueryRequestModel filter);
+        public FilterCalculationResultModel Calculate(StockDataQueryRequestModel filter);
+        public List<FilterCalculationResultModel> CalculateAllQueries();
     }
 }
