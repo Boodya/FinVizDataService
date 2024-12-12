@@ -4,5 +4,7 @@
     {
         public string DatabaseConnectionString { get; set; }
         public string DatabaseType { get; set; }
+        public TimeSpan QueryCalculationTime { get; set; }
+        public bool QueryCalculationOnStart { get; set; }
     }
 }

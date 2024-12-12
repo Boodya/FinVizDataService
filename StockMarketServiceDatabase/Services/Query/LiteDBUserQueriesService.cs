@@ -1,5 +1,7 @@
 ﻿using LiteDB;
+using StockMarketServiceDatabase.Models.Processing;
 using StockMarketServiceDatabase.Models.Query;
+using System.Linq.Expressions;
 
 namespace StockMarketServiceDatabase.Services.Query
 {
@@ -7,6 +9,7 @@ namespace StockMarketServiceDatabase.Services.Query
     {
         private string _databasePath;
         private const string _queriesCollection = "Queries";
+        private const string _queryCalculations = "QueryCalculations";
 
         public LiteDBUserQueriesService(string dbPath)
         {
@@ -59,6 +62,16 @@ namespace StockMarketServiceDatabase.Services.Query
             }
         }
 
+        public List<UserQueryModel> GetQuery(
+            Expression<Func<UserQueryModel, bool>> condition)
+        {
+            using (var db = new LiteDatabase(_databasePath))
+            {
+                var queries = db.GetCollection<UserQueryModel>(_queriesCollection);
+                return queries.Find(condition).ToList();
+            }
+        }
+
         public void IterateQueries(Action<IEnumerable<UserQueryModel>> batchProcessing, int batchSize=100)
         {
             if (batchProcessing == null)
@@ -92,6 +105,40 @@ namespace StockMarketServiceDatabase.Services.Query
                     skip += batchSize;
                 }
                 while (batch.Count() == batchSize);
+            }
+        }
+
+        public FilterCalculationResultModel? GetFilterCalculationResult(int queryId)
+        {
+            using (var db = new LiteDatabase(_databasePath))
+            {
+                var calcDb = db.GetCollection<FilterCalculationResultModel>(_queryCalculations);
+                return calcDb.Find(q => q.QueryId == queryId)
+                    .FirstOrDefault();
+            }
+        }
+
+        public void AddOrUpdateQueryCalculation(FilterCalculationResultModel calculation)
+        {
+            using (var db = new LiteDatabase(_databasePath))
+            {
+                var calcDb = db.GetCollection<FilterCalculationResultModel>(_queryCalculations);
+                calcDb.EnsureIndex(u => u.QueryId, true);
+                calcDb.Upsert(calculation);
+                var queriesDb = db.GetCollection<UserQueryModel>(_queriesCollection);
+                var query = queriesDb.FindById(calculation.QueryId);
+                query.RevisionNumber = calculation.LastDataRevisionNum;
+                queriesDb.Update(query);
+            }
+        }
+
+        public List<FilterCalculationResultModel> GetQueryCalculations(
+            Expression<Func<FilterCalculationResultModel, bool>> condition)
+        {
+            using (var db = new LiteDatabase(_databasePath))
+            {
+                var calcDb = db.GetCollection<FilterCalculationResultModel>(_queryCalculations);
+                return calcDb.Find(condition).ToList();
             }
         }
     }

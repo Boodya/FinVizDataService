@@ -23,7 +23,7 @@ namespace StockMarketDataProcessingTests
         public void CalculateAllQueriesTest()
         {
            
-            var calculations = _processor.CalculateAllQueries();
+            var calculations = _processor.RecalculateAllQueries();
             Assert.True(calculations.Any());
         }
     }

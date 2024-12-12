@@ -28,16 +28,18 @@ namespace StockMarketDataProcessing.Processors.FilterResults
         public FilterCalculationResultModel Calculate(UserQueryModel filter) =>
             CalculateFilter(filter, _finVizData.GetAllDataRevisions());
 
-        public List<FilterCalculationResultModel> CalculateAllQueries()
+        public List<FilterCalculationResultModel> RecalculateAllQueries()
         {
             var result = new List<FilterCalculationResultModel>();
             var dataRevisions = _finVizData.GetAllDataRevisions();
-            _queries.IterateQueries((batch) =>
+            var lastRevision = dataRevisions.Last();
+            var queriesToProcess = _queries.GetQuery(
+                q => q.RevisionNumber < lastRevision);
+            queriesToProcess.ForEach(query =>
             {
-                foreach (var query in batch)
-                    result.Add(
-                            CalculateFilter(
-                                query, dataRevisions));
+                result.Add(
+                    CalculateFilter(
+                        query, dataRevisions));
             });
             return result;
         }

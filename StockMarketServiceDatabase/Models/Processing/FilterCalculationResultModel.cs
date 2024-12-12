@@ -1,16 +1,21 @@
-﻿namespace StockMarketServiceDatabase.Models.Processing
+﻿using LiteDB;
+
+namespace StockMarketServiceDatabase.Models.Processing
 {
     public class FilterCalculationResultModel
     {
-        public DateTime CalculationDate;
-        public int QueryId;
-        public int LastDataRevisionNum;
-        public decimal AverageSuccessRate;
-        public decimal AverageProfitRate;
-        public decimal AverageLossRate;
-        public int SuccessDeals;
-        public int FailedDeals;
-        public List<FilterCalculationDealModel> Deals;
+        public DateTime CalculationDate { get; set; }
+        public int QueryId { get; set; }
+        public int LastDataRevisionNum { get; set; }
+        public decimal AverageSuccessRate { get; set; }
+        public decimal AverageProfitRate { get; set; }
+        public decimal AverageLossRate { get; set; }
+        public int SuccessDeals { get; set; }
+        public int FailedDeals { get; set; }
+        [BsonIgnore]
+        public List<FilterCalculationDealModel> Deals { get; set; }
+        [BsonIgnore]
+        public string CalculationError { get; set; }
     }
 
     public class FilterCalculationDealModel

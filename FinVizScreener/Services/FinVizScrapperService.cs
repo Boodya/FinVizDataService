@@ -28,7 +28,6 @@ namespace FinVizScreener.Services
                 .GetRevision()
                 .ToList();
             _scrapperCancelToken = new CancellationToken();
-            //_ = StartPeriodicScrapingAsync(_scrapperCancelToken);
             _ = ScheduledExecutor.ScheduleTaskExecution(_cfg.ExecutionTime, 
                 _scrapperCancelToken,
                 FetchAndSaveDataAsync, 

@@ -4,6 +4,9 @@ using Serilog;
 using StockMarketAnalyticsService.Services;
 using StockMarketServiceDatabase.Models.User;
 using StockMarketServiceDatabase.Services.User;
+using StockMarketDataProcessing.Services;
+using StockMarketDataProcessing.Processors.FilterResults;
+using StockMarketServiceDatabase.Services.FinViz;
 
 namespace StockMarketAnalyticsService
 {
@@ -50,6 +53,15 @@ namespace StockMarketAnalyticsService
                     return new LiteDBUserDataService(userDataConfig.DatabaseConnectionString);
                 throw new Exception($"Unable to initialize user data service - " +
                     $"unknown dbtype [{userDataConfig.DatabaseType}]");
+            });
+
+            builder.Services.AddSingleton<FilterCalculationService>(provider =>
+            {/*(IFilterResultsProcessor processor, 
+            IUserQueriesDataService queries,
+            ILogger<FilterCalculationService>? logger,
+            UserDataServiceConfigModel cfg)*/
+                var finVizDb = provider.GetRequiredService<IFinvizDBAdapter>();
+                return new FilterCalculationService(new FinVizDataIncrementalFilterProcessor(), )
             });
 
             builder.Services.AddDistributedMemoryCache(); // Use in-memory cache for session storage

@@ -2,7 +2,7 @@
 
 namespace FinVizScreener.Helpers
 {
-    internal class ScheduledExecutor
+    public class ScheduledExecutor
     {
         public static async Task ScheduleTaskExecution(
             TimeSpan executionTime,
