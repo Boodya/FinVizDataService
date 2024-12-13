@@ -1,6 +1,5 @@
 ﻿using StockMarketServiceDatabase.Models.FinViz;
 using LiteDB;
-using StockMarketServiceDatabase.Models.Query;
 using System.Text.RegularExpressions;
 
 namespace StockMarketServiceDatabase.Services.FinViz

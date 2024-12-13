@@ -7,6 +7,9 @@ using StockMarketServiceDatabase.Services.User;
 using StockMarketDataProcessing.Services;
 using StockMarketDataProcessing.Processors.FilterResults;
 using StockMarketServiceDatabase.Services.FinViz;
+using StockMarketServiceDatabase.Services.Query;
+using Microsoft.Extensions.DependencyInjection;
+using StockMarketDataProcessing.Processors.FilterQuery;
 
 namespace StockMarketAnalyticsService
 {
@@ -35,7 +38,12 @@ namespace StockMarketAnalyticsService
             builder.Configuration.GetSection("FinVizDataServiceConfigModel").Bind(finVizConfig);
             if (string.IsNullOrEmpty(finVizConfig.DatabaseConnectionString))
                 throw new Exception("Unnable to parse finviz service database connection string from config file.");
-
+            builder.Services.AddSingleton(provider =>
+            {
+                return DBAdapterFactory.Resolve(
+                    finVizConfig.DatabaseType,
+                    finVizConfig.DatabaseConnectionString);
+            });
             builder.Services.AddSingleton(provider =>
             {
                 var logger = provider.GetRequiredService<ILogger<FinVizScrapperService>>();
@@ -54,14 +62,28 @@ namespace StockMarketAnalyticsService
                 throw new Exception($"Unable to initialize user data service - " +
                     $"unknown dbtype [{userDataConfig.DatabaseType}]");
             });
+            builder.Services.AddSingleton<IUserQueriesDataService>(provider =>
+            {
+                if (userDataConfig.DatabaseType == "LiteDB")
+                    return new LiteDBUserQueriesService(userDataConfig.DatabaseConnectionString);
+                throw new Exception($"Unable to initialize user queries data service - " +
+                    $"unknown dbtype [{userDataConfig.DatabaseType}]");
+            });
 
-            builder.Services.AddSingleton<FilterCalculationService>(provider =>
-            {/*(IFilterResultsProcessor processor, 
-            IUserQueriesDataService queries,
-            ILogger<FilterCalculationService>? logger,
-            UserDataServiceConfigModel cfg)*/
+            builder.Services.AddSingleton(provider =>
+            {
+                var userQueriesService = provider.GetRequiredService<IUserQueriesDataService>();
                 var finVizDb = provider.GetRequiredService<IFinvizDBAdapter>();
-                return new FilterCalculationService(new FinVizDataIncrementalFilterProcessor(), )
+                var finvizProcessor = new FinVizDataIncrementalFilterProcessor(
+                    finVizDb,
+                    userQueriesService,
+                    new MapBasedLinqQueryProcessor<FinVizDataItem>("ItemProperties")
+                );
+
+                return new FilterCalculationService(
+                    finvizProcessor, userQueriesService,
+                    provider.GetRequiredService<ILogger<FilterCalculationService>>(),
+                    userDataConfig);
             });
 
             builder.Services.AddDistributedMemoryCache(); // Use in-memory cache for session storage
@@ -76,6 +98,7 @@ namespace StockMarketAnalyticsService
         public static void PostConfigure(WebApplication app)
         {
             _ = app.Services.GetRequiredService<StockScreenerService>();
+            _ = app.Services.GetRequiredService<FilterCalculationService>();
         }
     }
 }
