@@ -124,10 +124,15 @@ namespace StockMarketServiceDatabase.Services.Query
             {
                 var calcDb = db.GetCollection<FilterCalculationResultModel>(_queryCalculations);
                 calcDb.EnsureIndex(u => u.QueryId, true);
-                calcDb.Upsert(calculation);
+
+                if (calcDb.FindById(calculation.QueryId) != null)
+                    calcDb.Insert(calculation);
+                else calcDb.Update(calculation);
+
                 var queriesDb = db.GetCollection<UserQueryModel>(_queriesCollection);
                 var query = queriesDb.FindById(calculation.QueryId);
                 query.RevisionNumber = calculation.LastDataRevisionNum;
+                query.HistoricalSuccessRate = calculation.AverageSuccessRate;
                 queriesDb.Update(query);
             }
         }

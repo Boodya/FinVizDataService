@@ -5,26 +5,27 @@ namespace StockMarketServiceDatabase.Models.Processing
     public class FilterCalculationResultModel
     {
         public DateTime CalculationDate { get; set; }
+        [BsonId]
         public int QueryId { get; set; }
+        public string Filter { get; set; }
         public int LastDataRevisionNum { get; set; }
         public decimal AverageSuccessRate { get; set; }
         public decimal AverageProfitRate { get; set; }
         public decimal AverageLossRate { get; set; }
         public int SuccessDeals { get; set; }
         public int FailedDeals { get; set; }
-        [BsonIgnore]
         public List<FilterCalculationDealModel> Deals { get; set; }
-        [BsonIgnore]
         public string CalculationError { get; set; }
     }
 
     public class FilterCalculationDealModel
     {
-        public string Ticker;
-        public int QueryId;
-        public decimal EntryPrice;
-        public decimal LastPrice;
-        public int EntryRevNumber;
-        public int CloseRevNumber;
+        public string Ticker { get; set; }
+        public int QueryId { get; set; }
+        public decimal EntryPrice { get; set; }
+        public decimal LastPrice { get; set; }
+        public decimal ProfitPercent { get; set; }
+        public int EntryRevNumber { get; set; }
+        public int CloseRevNumber { get; set; }
     }
 }

@@ -1,0 +1,72 @@
+﻿@using StockMarketServiceDatabase.Models.Processing
+@model FilterCalculationResultModel
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h2>Calculation Results</h2>
+                    <small>Calculation Date: @Model.CalculationDate.ToString("yyyy-MM-dd HH:mm:ss")</small>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Summary</h5>
+                    <ul class="list-group mb-4">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><strong>Average Success Rate:</strong></span>
+                            <span>@Model.AverageSuccessRate.ToString("f2") %</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><strong>Last Data Revision:</strong></span>
+                            <span>@Model.LastDataRevisionNum</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><strong>Average Profit Rate:</strong></span>
+                            <span>@Model.AverageProfitRate.ToString("f2") %</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><strong>Average Loss Rate:</strong></span>
+                            <span>@Model.AverageLossRate.ToString("f2") %</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><strong>Success Deals:</strong></span>
+                            <span>@Model.SuccessDeals</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><strong>Failed Deals:</strong></span>
+                            <span>@Model.FailedDeals</span>
+                        </li>
+                        @if (!string.IsNullOrWhiteSpace(Model.CalculationError))
+                        {
+                            <li class="list-group-item list-group-item-danger">
+                                <strong>Error:</strong> @Model.CalculationError
+                            </li>
+                        }
+                    </ul>
+
+                    <h5 class="card-title">Deals</h5>
+                    @if (Model.Deals != null && Model.Deals.Any())
+                    {
+                        <ul class="list-group">
+                            @foreach (var deal in Model.Deals)
+                            {
+                                <li class="list-group-item" style="background-color: 
+                                        @(deal.ProfitPercent > 0 ? "var(--profit-background-color)" : "var(--loss-background-color)")">
+                                    <div><strong>Ticker:</strong> @deal.Ticker</div>
+                                    <div><strong>Profit:</strong> @deal.ProfitPercent.ToString("f2") %</div>
+                                    <div><strong>Entry Price:</strong> @deal.EntryPrice.ToString("f2")</div>
+                                    <div><strong>Last Price:</strong> @deal.LastPrice.ToString("f2")</div>
+                                    <div><strong>Entry Revision Number:</strong> @deal.EntryRevNumber</div>
+                                    <div><strong>Close Revision Number:</strong> @deal.CloseRevNumber</div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>No deals available.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -17,7 +17,7 @@
         <thead class="table-dark">
             <tr>
                 <th scope="col">Title</th>
-                <th scope="col" class="text-center">Action</th>
+                <th scope="col">Success Rate</th>
             </tr>
         </thead>
         <tbody>
@@ -25,22 +25,18 @@
             {
                 @foreach (var query in Model)
                 {
-                    <tr>
+                    <tr onclick="window.location.href='/Home/Edit?queryId=@query.Id';"
+                        style="cursor: pointer;"
+                        class="clickable-row">
                         <td>@query.QueryTitle</td>
-                        <td class="text-center">
-                            <div class="d-flex justify-content-center">
-                                <a href="/Home/Edit?queryId=@query.Id" class="btn btn-sm btn-warning me-2">Edit</a>
-                                <a href="/Home/Delete?queryId=@query.Id" class="btn btn-sm btn-danger me-2">Delete</a>
-                                <a href="/Home/Execute?queryId=@query.Id" class="btn btn-sm btn-success">Execute</a>
-                            </div>
-                        </td>
+                        <td>@query.HistoricalSuccessRate.ToString("f2") %</td>
                     </tr>
                 }
             }
             else
             {
                 <tr>
-                    <td colspan="3" class="text-center text-muted">No queries found. Click "Add New Query" to create one.</td>
+                    <td colspan="3" class="text-center">No queries found. Click "Add New Query" to create one.</td>
                 </tr>
             }
         </tbody>

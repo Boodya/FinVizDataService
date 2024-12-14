@@ -25,7 +25,7 @@ namespace StockMarketAnalyticsService.Controllers
         [Route("SearchTickerCompanyList")]
         [HttpGet]
         public ActionResult<Dictionary<string, string>> SearchTickerCompanyList(string matchingPattern = "") =>
-            _stockScreenerService.SearchTickerCompanyNameMap(matchingPattern);//.Take(100).ToDictionary();
+            _stockScreenerService.SearchTickerCompanyNameMap(matchingPattern);
 
         [Route("Query")]
         [HttpPost]

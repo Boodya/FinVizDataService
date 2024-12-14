@@ -1,21 +1,23 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using LiteDB;
+using Microsoft.AspNetCore.Mvc;
 using StockMarketAnalyticsService.Services;
+using StockMarketDataProcessing.Services;
 using StockMarketServiceDatabase.Models.Query;
-using StockMarketServiceDatabase.Models.User;
 using StockMarketServiceDatabase.Services.User;
-using System.Reflection;
 
 namespace StockMarketAnalyticsService.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : AuthBaseController
     {
         private readonly StockScreenerService _stockScreenerService;
-        private readonly IUserDataService _userDataService;
+        private readonly FilterCalculationService _filterCalculationService;
 
-        public HomeController(StockScreenerService stockScreenerService, IUserDataService userDataService)
+        public HomeController(StockScreenerService stockScreenerService, 
+            IUserDataService userDataService,
+            FilterCalculationService filterCalculationService) : base(userDataService)
         {
-            _userDataService = userDataService;
             _stockScreenerService = stockScreenerService;
+            _filterCalculationService = filterCalculationService;
         }
 
         public IActionResult Index()
@@ -25,57 +27,24 @@ namespace StockMarketAnalyticsService.Controllers
             return View();
         }
 
-        public ActionResult Login()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        public ActionResult Authenticate(string email)
-        {
-            if (string.IsNullOrWhiteSpace(email) || !email.Contains("@"))
-            {
-                ViewBag.Message = "Invalid email address";
-                return View("Login");
-            }
-            var user = _userDataService.GetUser(email);
-            if (user == null)
-            {
-                user = new UserModel() { Email = email };
-                user.Id = _userDataService.AddOrUpdateUser(user);
-            }
-            HttpContext.Session.SetString("uId", user.Id.ToString());
-            HttpContext.Session.SetString("Email", user.Email);
-            return RedirectToAction("Index");
-        }
-
-        public ActionResult SignOut()
-        {
-            HttpContext.Session.Remove("Email");
-            HttpContext.Session.Remove("uId");
-            return RedirectToAction("Login");
-        }
-
         public ActionResult List()
         {
-            var userId = GetContextUserId();
-            if (userId == null)
+            if (NeedLogin())
                 return RedirectToAction("Login");
+            var userId = GetContextUserId();
             return View(_userDataService.QueriesService
                 .GetUserQueries(userId.Value));
         }
 
         public ActionResult Edit(int queryId)
         {
-            var isValid = ModelState.IsValid;
             if (NeedLogin())
                 return RedirectToAction("Login");
             if (queryId == 0)
             {
                 var nQuery = new UserQueryModel()
                 {
-                    UserId = GetContextUserId().Value,
-                    QueryTitle = "TEST"
+                    UserId = GetContextUserId() ?? 0,
                 };
                 return View(nQuery);
             }
@@ -86,10 +55,6 @@ namespace StockMarketAnalyticsService.Controllers
         [HttpPost]
         public ActionResult SaveUserQuery(UserQueryModel query)
         {
-            if (!ModelState.IsValid)
-            {
-                return View("Edit", query);
-            }
             if (NeedLogin())
                 return RedirectToAction("Login");
             _userDataService.QueriesService.AddOrUpdateQuery(query);
@@ -131,18 +96,13 @@ namespace StockMarketAnalyticsService.Controllers
                 View("Instrument", instrument);
         }
 
-        private bool NeedLogin() =>
-            GetContextUserLogin() == null;
-
-        private string? GetContextUserLogin()
+        [HttpPost]
+        public PartialViewResult CalculateQueryPart([FromBody] UserQueryModel query)
         {
-            return HttpContext.Session.GetString("Email");
-        }
-
-        private int? GetContextUserId()
-        {
-            var sUid = HttpContext.Session.GetString("uId");
-            return sUid == null ? null : int.Parse(sUid);
+            var result = _filterCalculationService.Calculate(query);
+            result.Deals = result.Deals
+                .OrderBy(d => d.Ticker).ToList();
+            return PartialView("_FilterCalculationPart", result);
         }
     }
 }

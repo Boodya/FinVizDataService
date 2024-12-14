@@ -109,6 +109,14 @@ footer {
     cursor: pointer;
 }
 
-    .ticker-list .list-group-item:hover {
-        background-color: var(--header-background-color);
-    }
+.ticker-list .list-group-item:hover {
+    background-color: var(--header-background-color);
+}
+
+.clickable-row:hover {
+    background-color: var(--clickable-row-onhover-color);
+}
+
+.clickable-row {
+    transition: background-color 0.3s ease;
+}

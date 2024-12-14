@@ -26,10 +26,26 @@ namespace StockMarketDataProcessing.Services
             _cfg = cfg;
             _logger = logger;
             _calculationCancellation = new();
-            _ = ScheduledExecutor.ScheduleTaskExecution(cfg.QueryCalculationTime,
+            _ = ScheduledExecutor.ScheduleTaskExecution<FilterCalculationService>(cfg.QueryCalculationTime,
                 _calculationCancellation,
                 CalculateAllQueriesAsync,
                 cfg.QueryCalculationOnStart, _logger);
+        }
+
+        public FilterCalculationResultModel Calculate(int queryId)
+        {
+            try
+            {
+                return _processor.Calculate(queryId);
+            }
+            catch(Exception ex)
+            {
+                return new FilterCalculationResultModel()
+                {
+                    CalculationDate = DateTime.Now.ToUniversalTime(),
+                    CalculationError = ex.Message
+                };
+            }
         }
 
         public FilterCalculationResultModel Calculate(UserQueryModel query)
@@ -38,7 +54,7 @@ namespace StockMarketDataProcessing.Services
             {
                 return _processor.Calculate(query);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return new FilterCalculationResultModel()
                 {
@@ -55,7 +71,7 @@ namespace StockMarketDataProcessing.Services
 
             var queries = _processor.RecalculateAllQueries();
             var totallyCalculated = queries?.Count;
-            queries?.ForEach(_queries.AddOrUpdateQueryCalculation);
+            //queries?.ForEach(_queries.AddOrUpdateQueryCalculation);
 
             _logger?.Log(LogLevel.Information, $"FilterCalculationService: " +
                 $"queries calculation completed. {totallyCalculated} notes saved to DB");

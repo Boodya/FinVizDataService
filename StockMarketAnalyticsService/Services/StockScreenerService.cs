@@ -2,7 +2,6 @@
 using FinVizScreener.Services;
 using StockMarketDataProcessing.Processors.FilterQuery;
 using StockMarketServiceDatabase.Models.Query;
-using System.Linq;
 
 namespace StockMarketAnalyticsService.Services
 {

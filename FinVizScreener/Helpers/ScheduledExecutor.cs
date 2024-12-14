@@ -2,18 +2,19 @@
 
 namespace FinVizScreener.Helpers
 {
-    public class ScheduledExecutor
+    public static class ScheduledExecutor
     {
-        public static async Task ScheduleTaskExecution(
+        public static async Task ScheduleTaskExecution<T>(
             TimeSpan executionTime,
             CancellationToken ct,
             Func<Task> task,
             bool isSyncOnStart = false,
             ILogger? logger = null)
         {
+            var executorType = typeof(T).Name;
             if (isSyncOnStart)
             {
-                logger?.Log(LogLevel.Information, $"ScheduledExecutor: " +
+                logger?.Log(LogLevel.Information, $"{executorType} ScheduledExecutor: " +
                             $"Executing task on start");
                 await task();
             }
@@ -25,21 +26,23 @@ namespace FinVizScreener.Helpers
                     var nowExecDate = SetTime(nowDate, executionTime);
                     var nextExecDate = SetTime(nowDate.AddDays(1), executionTime);
                     var delay = nextExecDate - nowDate;
-                    logger?.Log(LogLevel.Information, $"ScheduledExecutor: " +
+                    logger?.Log(LogLevel.Information, $"{executorType} ScheduledExecutor: " +
                             $"Execution schedulled to {nextExecDate} UTC. Waiting {delay}");
                     await Task.Delay(delay, ct);
-                    logger?.Log(LogLevel.Information, $"ScheduledExecutor: " +
+                    logger?.Log(LogLevel.Information, $"{executorType} ScheduledExecutor: " +
                             $"Executing task");
                     await task();
                 }
                 catch (OperationCanceledException)
                 {
-                    logger?.LogInformation("ScheduledExecutor: execution cancelled.");
+                    logger?.LogInformation($"{executorType} ScheduledExecutor: " +
+                        $"execution cancelled.");
                     break;
                 }
                 catch (Exception ex)
                 {
-                    logger?.LogError(ex, "ScheduledExecutor: issue with task execution.");
+                    logger?.LogError(ex, $"{executorType} ScheduledExecutor: " +
+                        $"issue with task execution.");
                 }
             }
         }

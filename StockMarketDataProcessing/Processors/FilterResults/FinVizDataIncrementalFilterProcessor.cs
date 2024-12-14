@@ -6,7 +6,6 @@ using StockMarketServiceDatabase.Models.Processing;
 using StockMarketServiceDatabase.Models.Query;
 using StockMarketServiceDatabase.Services.FinViz;
 using StockMarketServiceDatabase.Services.Query;
-using System.Globalization;
 
 namespace StockMarketDataProcessing.Processors.FilterResults
 {
@@ -16,7 +15,7 @@ namespace StockMarketDataProcessing.Processors.FilterResults
         private IUserQueriesDataService _queries;
         private MapBasedLinqQueryProcessor<FinVizDataItem> _queryProcessor;
         public FinVizDataIncrementalFilterProcessor(
-            IFinvizDBAdapter finVizData, 
+            IFinvizDBAdapter finVizData,
             IUserQueriesDataService queries,
             MapBasedLinqQueryProcessor<FinVizDataItem> queryProcessor)
         {
@@ -25,8 +24,11 @@ namespace StockMarketDataProcessing.Processors.FilterResults
             _queryProcessor = queryProcessor;
         }
 
-        public FilterCalculationResultModel Calculate(UserQueryModel filter) =>
-            CalculateFilter(filter, _finVizData.GetAllDataRevisions());
+        public FilterCalculationResultModel Calculate(int queryId) =>
+            Calculate(_queries.GetQuery(queryId));
+
+        public FilterCalculationResultModel Calculate(UserQueryModel query) =>
+            CalculateFilter(query, _finVizData.GetAllDataRevisions());
 
         public List<FilterCalculationResultModel> RecalculateAllQueries()
         {
@@ -44,9 +46,16 @@ namespace StockMarketDataProcessing.Processors.FilterResults
             return result;
         }
 
-        private FilterCalculationResultModel CalculateFilter(UserQueryModel filter, 
-            List<int> dataRevisions)
+        private FilterCalculationResultModel CalculateFilter(UserQueryModel filter,
+            List<int> dataRevisions, bool forceCalculate = false)
         {
+            if (string.IsNullOrEmpty(filter.Filter))
+                return new();
+            var lastRevision = dataRevisions.Last();
+            var calculation = TryNotRecalculate(filter, lastRevision, forceCalculate);
+            if (calculation != null)
+                return calculation;
+
             var calculations = new List<FilterActionOnDataRevisionModel>();
             filter.Top = 0;
             filter.Page = 0;
@@ -59,10 +68,13 @@ namespace StockMarketDataProcessing.Processors.FilterResults
                 AddActions(rev, calculations,
                     queriedData, data);
             });
-            return CalculateSummary(filter.Id, calculations);
+            calculation = CalculateSummary(filter, calculations);
+            if (filter.Id != 0)
+                _queries.AddOrUpdateQueryCalculation(calculation);
+            return calculation;
         }
 
-        private void AddActions(int dataRevision, 
+        private void AddActions(int dataRevision,
             List<FilterActionOnDataRevisionModel> calculations,
             List<FinVizDataItem> queriedData, List<FinVizDataItem> data)
         {
@@ -114,17 +126,20 @@ namespace StockMarketDataProcessing.Processors.FilterResults
             return price;
         }
 
-        private FilterCalculationResultModel CalculateSummary(int queryId, List<FilterActionOnDataRevisionModel> revisions)
+        private FilterCalculationResultModel CalculateSummary(UserQueryModel query, 
+            List<FilterActionOnDataRevisionModel> revisions)
         {
             var result = new FilterCalculationResultModel()
             {
-                QueryId = queryId,
+                QueryId = query.Id,
+                Filter = query.Filter,
                 CalculationDate = DateTime.Now.ToUniversalTime(),
                 LastDataRevisionNum = revisions.MaxBy(a => a.DataRevision)?
                     .DataRevision ?? 0,
-                Deals = new List<FilterCalculationDealModel>()
+                Deals = new List<FilterCalculationDealModel>(),
+                CalculationError = ""
             };
-            CalculateDeals(queryId, result, revisions);
+            CalculateDeals(query.Id, result, revisions);
             var successDeals = 0;
             decimal totalProfit = 0;
             decimal totalLoss = 0;
@@ -142,7 +157,7 @@ namespace StockMarketDataProcessing.Processors.FilterResults
                 {
                     totalLoss += profit;
                 }
-                    
+
             });
             result.SuccessDeals = successDeals;
             result.FailedDeals = result.Deals.Count - result.SuccessDeals;
@@ -169,8 +184,8 @@ namespace StockMarketDataProcessing.Processors.FilterResults
                             EntryPrice = action.Price
                         });
                     }
-                } 
-                else if(action.Action == OperationAction.Sell)
+                }
+                else if (action.Action == OperationAction.Sell)
                 {
                     var openedDeal = model.Deals.FirstOrDefault(
                         d => d.Ticker == action.Ticker && d.CloseRevNumber == 0);
@@ -178,6 +193,8 @@ namespace StockMarketDataProcessing.Processors.FilterResults
                         throw new Exception("Something wrong - attempted to close the deal that should be opened before");
                     openedDeal.CloseRevNumber = rev.DataRevision;
                     openedDeal.LastPrice = action.Price;
+                    openedDeal.ProfitPercent = Helpers.Percent(
+                        openedDeal.LastPrice - openedDeal.EntryPrice, openedDeal.EntryPrice);
                 }
             }));
             var latestPrices = _queryProcessor.QueryData(_finVizData.GetRevision().ToList(), new()
@@ -191,7 +208,27 @@ namespace StockMarketDataProcessing.Processors.FilterResults
                         .ItemProperties.FirstOrDefault(p => p.Key == "Price").Value;
                 d.LastPrice = Helpers
                     .ToDecimal(lastPrice);
+                d.ProfitPercent = Helpers.Percent(
+                        d.LastPrice - d.EntryPrice, d.EntryPrice);
             });
+        }
+
+        private FilterCalculationResultModel? TryNotRecalculate(
+            UserQueryModel filter, int lastRevNum, bool forceCalculate = false)
+        {
+            if (forceCalculate)
+                return null;
+            var existingQuery = _queries.GetQuery(filter.Id);
+            var existingQueryCalculation = _queries.GetQueryCalculations(c =>
+                c.QueryId == filter.Id).FirstOrDefault();
+            if (existingQueryCalculation == null || existingQuery == null)
+                return null;
+
+            if (filter.Filter != existingQueryCalculation.Filter || 
+                existingQueryCalculation.LastDataRevisionNum != lastRevNum)
+                return null;
+
+            return existingQueryCalculation;
         }
     }
 }

@@ -28,7 +28,7 @@ namespace FinVizScreener.Services
                 .GetRevision()
                 .ToList();
             _scrapperCancelToken = new CancellationToken();
-            _ = ScheduledExecutor.ScheduleTaskExecution(_cfg.ExecutionTime, 
+            _ = ScheduledExecutor.ScheduleTaskExecution<FinVizScrapperService>(_cfg.ExecutionTime, 
                 _scrapperCancelToken,
                 FetchAndSaveDataAsync, 
                 _cfg.IsSyncOnStart, _logger);
