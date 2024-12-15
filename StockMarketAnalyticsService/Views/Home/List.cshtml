@@ -23,7 +23,8 @@
         <tbody>
             @if (Model != null && Model.Count > 0)
             {
-                @foreach (var query in Model)
+                @foreach (var query in Model
+                    .OrderByDescending(q => q.HistoricalSuccessRate))
                 {
                     <tr onclick="window.location.href='/Home/Edit?queryId=@query.Id';"
                         style="cursor: pointer;"

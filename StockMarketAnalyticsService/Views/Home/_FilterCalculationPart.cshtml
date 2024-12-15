@@ -42,32 +42,80 @@
                             </li>
                         }
                     </ul>
-
-                    <h5 class="card-title">Ticker Trades</h5>
-                    @if (Model.TickerDeals != null && Model.TickerDeals.Any())
-                    {
-                        <ul class="list-group">
-                            @foreach (var deal in Model.TickerDeals
-                                .OrderByDescending(d => d.AverageProfitRate))
-                            {
-                                <li class="list-group-item" style="background-color: 
-                                        @(deal.AverageProfitRate > 0 ? "var(--profit-background-color)" : "var(--loss-background-color)")">
-                                    <div><strong>Ticker:</strong> @deal.Ticker</div>
-                                    <div><strong>Average Profit:</strong> @deal.AverageProfitRate.ToString("f2") %</div>
-                                    <div><strong>Success Rate:</strong> @deal.SuccessRate.ToString("f2") %</div>
-                                    <div><strong>Success Deals:</strong> @deal.SuccessDeals</div>
-                                    <div><strong>Failed Deals:</strong> @deal.FailedDeals</div>
-                                    <div><strong>Total Deals:</strong> @deal.Deals.Count</div>
-                                </li>
-                            }
-                        </ul>
-                    }
-                    else
-                    {
-                        <p>No deals available.</p>
-                    }
                 </div>
             </div>
         </div>
     </div>
 </div>
+<br />
+<h2 class="card-title row justify-content-center">
+    Historical Trades Analysis
+</h2>
+<br />
+@if (Model.TickerDeals != null && Model.TickerDeals.Any())
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col" data-type="text">Ticker</th>
+                <th scope="col" data-type="number">Average Profit</th>
+                <th scope="col" data-type="number">Success Rate</th>
+                <th scope="col" data-type="number">Success Deals</th>
+                <th scope="col" data-type="number">Failed Deals</th>
+                <th scope="col" data-type="number">Total Deals</th>
+            </tr>
+        </thead>
+        <tbody id="tickerTable">
+            @foreach (var deal in Model.TickerDeals
+                .OrderByDescending(d => d.AverageProfitRate))
+            {
+                <tr style="background-color:@(deal.AverageProfitRate > 0 ? "var(--profit-background-color)" : "var(--loss-background-color)")">
+                    <td><a href="https://finviz.com/quote.ashx?t=@deal.Ticker&p=m">@deal.Ticker</a></td>
+                    <td>@deal.AverageProfitRate.ToString("f2") %</td>
+                    <td>@deal.SuccessRate.ToString("f2") %</td>
+                    <td>@deal.SuccessDeals</td>
+                    <td>@deal.FailedDeals</td>
+                    <td>@deal.Deals.Count</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No deals available.</p>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const headers = document.querySelectorAll("th");
+            const table = document.getElementById("tickerTable");
+            headers.forEach((header, columnIndex) => {
+                header.addEventListener("click", () => {
+                    const type = header.getAttribute("data-type");
+                    const isAscending = header.getAttribute("data-sort-direction") === "asc";
+                    const rows = Array.from(table.rows);
+
+                    rows.sort((a, b) => {
+                        const cellA = a.cells[columnIndex].innerText.trim();
+                        const cellB = b.cells[columnIndex].innerText.trim();
+
+                        if (type === "number") {
+                            const numA = parseFloat(cellA) || 0;
+                            const numB = parseFloat(cellB) || 0;
+                            return isAscending ? numA - numB : numB - numA;
+                        } else if (type === "text") {
+                            return isAscending
+                                ? cellA.localeCompare(cellB)
+                                : cellB.localeCompare(cellA);
+                        }
+                    });
+
+                    header.setAttribute("data-sort-direction", isAscending ? "desc" : "asc");
+                    rows.forEach(row => table.appendChild(row));
+                });
+            });
+        });
+    </script>
+}
