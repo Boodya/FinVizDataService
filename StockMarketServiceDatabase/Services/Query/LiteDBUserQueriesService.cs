@@ -125,7 +125,7 @@ namespace StockMarketServiceDatabase.Services.Query
                 var calcDb = db.GetCollection<FilterCalculationResultModel>(_queryCalculations);
                 calcDb.EnsureIndex(u => u.QueryId, true);
 
-                if (calcDb.FindById(calculation.QueryId) != null)
+                if (calcDb.FindById(calculation.QueryId) == null)
                     calcDb.Insert(calculation);
                 else calcDb.Update(calculation);
 
@@ -138,11 +138,13 @@ namespace StockMarketServiceDatabase.Services.Query
         }
 
         public List<FilterCalculationResultModel> GetQueryCalculations(
-            Expression<Func<FilterCalculationResultModel, bool>> condition)
+            Expression<Func<FilterCalculationResultModel, bool>>? condition=null)
         {
             using (var db = new LiteDatabase(_databasePath))
             {
                 var calcDb = db.GetCollection<FilterCalculationResultModel>(_queryCalculations);
+                if (condition == null)
+                    return calcDb.FindAll().ToList();
                 return calcDb.Find(condition).ToList();
             }
         }

@@ -15,7 +15,19 @@ namespace StockMarketServiceDatabase.Models.Processing
         public int SuccessDeals { get; set; }
         public int FailedDeals { get; set; }
         public List<FilterCalculationDealModel> Deals { get; set; }
+        public List<FilterCalculationTickerDealsModel> TickerDeals { get; set; }
         public string CalculationError { get; set; }
+    }
+
+    public class FilterCalculationTickerDealsModel
+    {
+        public string Ticker { get; set; }
+        public int QueryId { get; set; }
+        public int SuccessDeals { get; set; }
+        public int FailedDeals { get; set; }
+        public decimal SuccessRate { get; set; }
+        public decimal AverageProfitRate { get; set; }
+        public List<FilterCalculationDealModel> Deals { get; set; }
     }
 
     public class FilterCalculationDealModel

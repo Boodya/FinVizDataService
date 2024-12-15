@@ -59,6 +59,7 @@ namespace StockMarketDataProcessing.Processors.FilterResults
             var calculations = new List<FilterActionOnDataRevisionModel>();
             filter.Top = 0;
             filter.Page = 0;
+
             dataRevisions.ForEach(rev =>
             {
                 var data = _finVizData.GetRevision(rev).ToList();
@@ -136,10 +137,12 @@ namespace StockMarketDataProcessing.Processors.FilterResults
                 CalculationDate = DateTime.Now.ToUniversalTime(),
                 LastDataRevisionNum = revisions.MaxBy(a => a.DataRevision)?
                     .DataRevision ?? 0,
-                Deals = new List<FilterCalculationDealModel>(),
+                Deals = new(),
+                TickerDeals = new(),
                 CalculationError = ""
             };
             CalculateDeals(query.Id, result, revisions);
+            CalculateTickerDeals(result);
             var successDeals = 0;
             decimal totalProfit = 0;
             decimal totalLoss = 0;
@@ -167,6 +170,23 @@ namespace StockMarketDataProcessing.Processors.FilterResults
             return result;
         }
 
+        private void CalculateTickerDeals(FilterCalculationResultModel model)
+        {
+            model.TickerDeals = model.Deals
+                .GroupBy(deal => new { deal.Ticker })
+                .Select(group => new FilterCalculationTickerDealsModel
+                {
+                    Ticker = group.Key.Ticker,
+                    QueryId = group.First().QueryId,
+                    SuccessDeals = group.Count(deal => deal.ProfitPercent > 0),
+                    FailedDeals = group.Count(deal => deal.ProfitPercent <= 0),
+                    SuccessRate = group.Any() ? Helpers.Percent(group
+                        .Count(deal => deal.ProfitPercent > 0), group.Count()) : 0,
+                    AverageProfitRate = group.Sum(g => g.ProfitPercent) / group.Count(),
+                    Deals = group.ToList()
+                })
+                .ToList();
+        }
         private void CalculateDeals(int queryId, FilterCalculationResultModel model,
             List<FilterActionOnDataRevisionModel> revisions)
         {
@@ -219,6 +239,7 @@ namespace StockMarketDataProcessing.Processors.FilterResults
             if (forceCalculate)
                 return null;
             var existingQuery = _queries.GetQuery(filter.Id);
+            var allQueries = _queries.GetQueryCalculations();
             var existingQueryCalculation = _queries.GetQueryCalculations(c =>
                 c.QueryId == filter.Id).FirstOrDefault();
             if (existingQueryCalculation == null || existingQuery == null)

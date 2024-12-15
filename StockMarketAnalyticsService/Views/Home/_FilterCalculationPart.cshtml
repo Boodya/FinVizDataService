@@ -43,20 +43,21 @@
                         }
                     </ul>
 
-                    <h5 class="card-title">Deals</h5>
-                    @if (Model.Deals != null && Model.Deals.Any())
+                    <h5 class="card-title">Ticker Trades</h5>
+                    @if (Model.TickerDeals != null && Model.TickerDeals.Any())
                     {
                         <ul class="list-group">
-                            @foreach (var deal in Model.Deals)
+                            @foreach (var deal in Model.TickerDeals
+                                .OrderByDescending(d => d.AverageProfitRate))
                             {
                                 <li class="list-group-item" style="background-color: 
-                                        @(deal.ProfitPercent > 0 ? "var(--profit-background-color)" : "var(--loss-background-color)")">
+                                        @(deal.AverageProfitRate > 0 ? "var(--profit-background-color)" : "var(--loss-background-color)")">
                                     <div><strong>Ticker:</strong> @deal.Ticker</div>
-                                    <div><strong>Profit:</strong> @deal.ProfitPercent.ToString("f2") %</div>
-                                    <div><strong>Entry Price:</strong> @deal.EntryPrice.ToString("f2")</div>
-                                    <div><strong>Last Price:</strong> @deal.LastPrice.ToString("f2")</div>
-                                    <div><strong>Entry Revision Number:</strong> @deal.EntryRevNumber</div>
-                                    <div><strong>Close Revision Number:</strong> @deal.CloseRevNumber</div>
+                                    <div><strong>Average Profit:</strong> @deal.AverageProfitRate.ToString("f2") %</div>
+                                    <div><strong>Success Rate:</strong> @deal.SuccessRate.ToString("f2") %</div>
+                                    <div><strong>Success Deals:</strong> @deal.SuccessDeals</div>
+                                    <div><strong>Failed Deals:</strong> @deal.FailedDeals</div>
+                                    <div><strong>Total Deals:</strong> @deal.Deals.Count</div>
                                 </li>
                             }
                         </ul>

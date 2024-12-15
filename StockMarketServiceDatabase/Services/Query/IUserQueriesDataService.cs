@@ -15,7 +15,7 @@ namespace StockMarketServiceDatabase.Services.Query
         public void DeleteQuery(UserQueryModel query);
         //Query Calculations
         public List<FilterCalculationResultModel> GetQueryCalculations(
-            Expression<Func<FilterCalculationResultModel, bool>> condition);
+            Expression<Func<FilterCalculationResultModel, bool>>? condition=null);
         public FilterCalculationResultModel? GetFilterCalculationResult(int queryId);
         public void AddOrUpdateQueryCalculation(FilterCalculationResultModel calculations);
     }
